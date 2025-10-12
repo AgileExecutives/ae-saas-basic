@@ -181,3 +181,84 @@ DELETE {{host}}/api/v1/contact/newsletter/unsubscribe?email=test@example.com
 HTTP 401
 [Asserts]
 jsonpath "$.message" contains "Authorization required"
+
+# Additional Authentication Tests (adapted from backend contact-form-auth)
+
+# Test 14: Contact form with invalid email format (validation test)
+POST {{host}}/api/v1/contact/form
+Content-Type: application/json
+{
+  "name": "Invalid Email User",
+  "email": "not-an-email",
+  "subject": "Invalid Email Test",
+  "message": "This should fail with invalid email format",
+  "newsletter": false,
+  "source": "website"
+}
+
+HTTP 400
+[Asserts]
+jsonpath "$.error" exists
+
+# Test 15: Contact form with missing required fields (validation test)
+POST {{host}}/api/v1/contact/form
+Content-Type: application/json
+{
+  "name": "Incomplete User",
+  "newsletter": false,
+  "source": "website"
+}
+
+HTTP 400
+[Asserts]
+jsonpath "$.error" exists
+
+# Test 16: Contact form with newsletter subscription for same email (update scenario)
+POST {{host}}/api/v1/contact/form
+Content-Type: application/json
+{
+  "name": "Newsletter Updated User",
+  "email": "newsletter@example.com",
+  "subject": "Updated Interest",
+  "message": "This should update the existing newsletter subscription",
+  "newsletter": true,
+  "source": "website"
+}
+
+HTTP 200
+[Asserts]
+jsonpath "$.message" == "Contact form submitted successfully"
+
+# Test 17: Multiple newsletter subscriptions with Bearer auth testing
+POST {{host}}/api/v1/contact/form
+Content-Type: application/json
+{
+  "name": "Auth Test User",
+  "email": "auth_test_newsletter@example.com",
+  "subject": "Newsletter with Auth Context",
+  "message": "Testing newsletter functionality in authenticated context",
+  "newsletter": true,
+  "source": "website"
+}
+
+HTTP 200
+[Asserts]
+jsonpath "$.message" == "Contact form submitted successfully"
+
+# Test 18: Verify the newly created newsletter subscription exists
+GET {{host}}/api/v1/contact/newsletter
+Authorization: Bearer {{auth_token}}
+
+HTTP 200
+[Asserts]
+jsonpath "$" isCollection
+# Verify that our test email is in the newsletter list
+jsonpath "$[*].email" includes "auth_test_newsletter@example.com"
+
+# Test 19: Unsubscribe the test email we just created
+DELETE {{host}}/api/v1/contact/newsletter/unsubscribe?email=auth_test_newsletter@example.com
+Authorization: Bearer {{auth_token}}
+
+HTTP 200
+[Asserts]
+jsonpath "$.message" contains "unsubscribed"

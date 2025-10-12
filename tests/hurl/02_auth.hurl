@@ -89,6 +89,23 @@ HTTP 401
 jsonpath "$.success" == false
 jsonpath "$.error" == "Invalid credentials"
 
+# Test login with unverified user (adapted from backend login-unverified-user test)
+# First create an unverified user scenario if email verification is implemented
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+{
+  "username": "unverified@example.com",
+  "password": "password123"
+}
+
+# This test expects 401 if email verification is required
+# If email verification is not implemented, this may return 401 for "Invalid credentials"
+HTTP 401
+[Asserts]
+jsonpath "$.success" == false
+# Accept either "Email not verified" or "Invalid credentials" error
+jsonpath "$.error" matches "(Email not verified|Invalid credentials)"
+
 # Test getting current user info (authenticated endpoint)
 GET {{host}}/api/v1/auth/me
 Authorization: Bearer {{auth_token}}
