@@ -9,12 +9,11 @@ import (
 
 // Config holds all configuration for the application
 type Config struct {
-	Server      ServerConfig
-	Database    database.Config
-	JWT         JWTConfig
-	Email       EmailConfig
-	PDF         PDFConfig
-	FuzzySearch FuzzySearchConfig
+	Server   ServerConfig
+	Database database.Config
+	JWT      JWTConfig
+	Email    EmailConfig
+	PDF      PDFConfig
 }
 
 // ServerConfig holds server configuration
@@ -54,22 +53,6 @@ type PDFConfig struct {
 	EnableJS     bool
 	LoadTimeout  int
 	MaxFileSize  int64 // Maximum PDF file size in bytes
-}
-
-// FuzzySearchConfig holds fuzzy search configuration
-type FuzzySearchConfig struct {
-	MinSearchLength  int     // Minimum query length
-	MaxResults       int     // Maximum results per entity type
-	ScoreThreshold   float64 // Minimum relevance score
-	EnableHighlight  bool    // Highlight matching text
-	CaseSensitive    bool    // Case sensitive search
-	ExactMatchBoost  float64 // Score boost for exact matches
-	PrefixMatchBoost float64 // Score boost for prefix matches
-	EnableStemming   bool    // Enable word stemming
-	EnableSynonyms   bool    // Enable synonym matching
-	EnableLogging    bool    // Log search queries
-	CacheResults     bool    // Cache search results
-	CacheTimeoutMin  int     // Cache timeout in minutes
 }
 
 // Load loads configuration from environment variables with defaults
@@ -113,20 +96,6 @@ func Load() Config {
 			EnableJS:     getEnvAsBool("PDF_ENABLE_JS", true),
 			LoadTimeout:  getEnvAsInt("PDF_LOAD_TIMEOUT", 30),
 			MaxFileSize:  getEnvAsInt64("PDF_MAX_FILE_SIZE", 50*1024*1024), // 50MB default
-		},
-		FuzzySearch: FuzzySearchConfig{
-			MinSearchLength:  getEnvAsInt("FUZZY_MIN_SEARCH_LENGTH", 2),
-			MaxResults:       getEnvAsInt("FUZZY_MAX_RESULTS", 50),
-			ScoreThreshold:   getEnvAsFloat64("FUZZY_SCORE_THRESHOLD", 0.3),
-			EnableHighlight:  getEnvAsBool("FUZZY_ENABLE_HIGHLIGHT", true),
-			CaseSensitive:    getEnvAsBool("FUZZY_CASE_SENSITIVE", false),
-			ExactMatchBoost:  getEnvAsFloat64("FUZZY_EXACT_MATCH_BOOST", 2.0),
-			PrefixMatchBoost: getEnvAsFloat64("FUZZY_PREFIX_MATCH_BOOST", 1.5),
-			EnableStemming:   getEnvAsBool("FUZZY_ENABLE_STEMMING", true),
-			EnableSynonyms:   getEnvAsBool("FUZZY_ENABLE_SYNONYMS", false),
-			EnableLogging:    getEnvAsBool("FUZZY_ENABLE_LOGGING", false),
-			CacheResults:     getEnvAsBool("FUZZY_CACHE_RESULTS", true),
-			CacheTimeoutMin:  getEnvAsInt("FUZZY_CACHE_TIMEOUT_MIN", 30),
 		},
 	}
 }

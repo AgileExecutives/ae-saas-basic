@@ -701,7 +701,6 @@ sudo apt-get install hurl  # Ubuntu
 # Run specific test category
 hurl --variable host=http://localhost:8080 tests/hurl/08_pdf_generation.hurl
 hurl --variable host=http://localhost:8080 tests/hurl/09_static_assets.hurl
-hurl --variable host=http://localhost:8080 tests/hurl/10_fuzzy_search.hurl
 ```
 
 ### Test Coverage
@@ -712,7 +711,6 @@ The HURL test suite includes:
 - **Business Logic Tests** - Plans, customers, contacts, emails, user settings
 - **PDF Generation Tests** - Template management, PDF generation, streaming
 - **Static Asset Tests** - File serving, security, performance
-- **Fuzzy Search Tests** - Multi-entity search, filters, preferences, admin functions
 
 For detailed testing documentation, see [HURL_TESTING.md](./HURL_TESTING.md).
 

@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -57,4 +58,12 @@ func ValidateID(c *gin.Context, paramName string) (uint, error) {
 	}
 
 	return uint(id), nil
+}
+
+// GetEnv gets environment variable with fallback
+func GetEnv(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
 }

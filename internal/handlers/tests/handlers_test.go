@@ -1,5 +1,4 @@
 package tests
-package tests
 
 import (
 	"bytes"
@@ -8,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ae-saas-basic/ae-saas-basic/internal/config"
 	"github.com/ae-saas-basic/ae-saas-basic/internal/database"
 	"github.com/ae-saas-basic/ae-saas-basic/internal/models"
 	"github.com/ae-saas-basic/ae-saas-basic/internal/router"
@@ -26,23 +26,47 @@ func setupTestDB() *gorm.DB {
 
 	// Run migrations
 	database.Migrate(db)
-	
+
 	return db
+}
+
+// setupTestConfig creates a test configuration
+func setupTestConfig() config.Config {
+	return config.Config{
+		Server: config.ServerConfig{
+			Port: "8383",
+			Host: "localhost",
+			Mode: "test",
+		},
+		Database: database.Config{
+			Host:     "localhost",
+			Port:     "5432",
+			User:     "postgres",
+			Password: "pass",
+			DBName:   "ae_saas_basic",
+			SSLMode:  "disable",
+		},
+		JWT: config.JWTConfig{
+			Secret:     "test-secret",
+			ExpiryHour: 24,
+		},
+	}
 }
 
 // TestHealthCheck tests the health endpoint
 func TestHealthCheck(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	db := setupTestDB()
-	r := router.SetupRouter(db)
+	cfg := setupTestConfig()
+	r := router.SetupRouter(db, cfg)
 
 	req, _ := http.NewRequest("GET", "/api/v1/health", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.HealthResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -52,16 +76,17 @@ func TestHealthCheck(t *testing.T) {
 // TestPing tests the ping endpoint
 func TestPing(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	db := setupTestDB()
-	r := router.SetupRouter(db)
+	cfg := setupTestConfig()
+	r := router.SetupRouter(db, cfg)
 
 	req, _ := http.NewRequest("GET", "/api/v1/ping", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response map[string]string
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -71,9 +96,9 @@ func TestPing(t *testing.T) {
 // TestGetPlans tests getting plans without authentication
 func TestGetPlans(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	db := setupTestDB()
-	
+
 	// Create a test plan
 	plan := models.Plan{
 		Name:          "Test Plan",
@@ -85,15 +110,16 @@ func TestGetPlans(t *testing.T) {
 		Active:        true,
 	}
 	db.Create(&plan)
-	
-	r := router.SetupRouter(db)
+
+	cfg := setupTestConfig()
+	r := router.SetupRouter(db, cfg)
 
 	req, _ := http.NewRequest("GET", "/api/v1/plans", nil)
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.APIResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -103,17 +129,18 @@ func TestGetPlans(t *testing.T) {
 // TestUserRegistration tests user registration
 func TestUserRegistration(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	db := setupTestDB()
-	
+
 	// Create a test organization
 	org := models.Organization{
 		Name: "Test Organization",
 		Slug: "test-org",
 	}
 	db.Create(&org)
-	
-	r := router.SetupRouter(db)
+
+	cfg := setupTestConfig()
+	r := router.SetupRouter(db, cfg)
 
 	// Create registration request
 	regReq := models.UserCreateRequest{
@@ -128,12 +155,12 @@ func TestUserRegistration(t *testing.T) {
 	jsonData, _ := json.Marshal(regReq)
 	req, _ := http.NewRequest("POST", "/api/v1/auth/register", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w := httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusCreated, w.Code)
-	
+
 	var response models.APIResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)
@@ -143,16 +170,16 @@ func TestUserRegistration(t *testing.T) {
 // TestUserLogin tests user login
 func TestUserLogin(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	db := setupTestDB()
-	
+
 	// Create a test organization
 	org := models.Organization{
 		Name: "Test Organization",
 		Slug: "test-org",
 	}
 	db.Create(&org)
-	
+
 	// Create a test user
 	regReq := models.UserCreateRequest{
 		Username:       "testuser",
@@ -162,8 +189,9 @@ func TestUserLogin(t *testing.T) {
 		LastName:       "User",
 		OrganizationID: org.ID,
 	}
-	
-	r := router.SetupRouter(db)
+
+	cfg := setupTestConfig()
+	r := router.SetupRouter(db, cfg)
 
 	// Register user first
 	jsonData, _ := json.Marshal(regReq)
@@ -182,12 +210,12 @@ func TestUserLogin(t *testing.T) {
 	jsonData, _ = json.Marshal(loginReq)
 	req, _ = http.NewRequest("POST", "/api/v1/auth/login", bytes.NewBuffer(jsonData))
 	req.Header.Set("Content-Type", "application/json")
-	
+
 	w = httptest.NewRecorder()
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, http.StatusOK, w.Code)
-	
+
 	var response models.APIResponse
 	err := json.Unmarshal(w.Body.Bytes(), &response)
 	assert.NoError(t, err)

@@ -22,7 +22,6 @@ The HURL test suite provides comprehensive API testing for all endpoints in the 
 ### New Feature Tests
 - `08_pdf_generation.hurl` - **PDF generation system tests**
 - `09_static_assets.hurl` - **Static file serving tests**
-- `10_fuzzy_search.hurl` - **Fuzzy search functionality tests**
 
 ## Prerequisites
 
@@ -66,7 +65,7 @@ TEST_HOST=http://localhost:3000 ./run-hurl-tests.sh
 hurl --variable host=http://localhost:8080 tests/hurl/08_pdf_generation.hurl
 
 # Run with verbose output
-hurl --variable host=http://localhost:8080 --very-verbose tests/hurl/10_fuzzy_search.hurl
+hurl --variable host=http://localhost:8080 --very-verbose tests/hurl/08_pdf_generation.hurl
 
 # Save results to file
 hurl --variable host=http://localhost:8080 --json --output results.json tests/hurl/09_static_assets.hurl
@@ -148,55 +147,7 @@ hurl --variable host=http://localhost:8080 \
      tests/hurl/09_static_assets.hurl
 ```
 
-### Fuzzy Search Tests (`10_fuzzy_search.hurl`)
 
-Tests the intelligent search system across multiple entity types:
-
-#### Search Types
-- Basic search across all entities
-- Quick search for autocomplete
-- Entity-specific searches
-- Advanced search with filters
-
-#### Entity Coverage
-- Users (`/api/v1/search/users`)
-- Customers (`/api/v1/search/customers`)  
-- Contacts (`/api/v1/search/contacts`)
-- Plans (`/api/v1/search/plans`)
-- Emails (`/api/v1/search/emails`)
-
-#### Advanced Features
-- Date range filtering
-- Numeric range filtering
-- Boolean filtering
-- Relevance scoring
-- Text highlighting
-
-#### User Preferences
-- Get/update search preferences
-- Save/delete search queries
-- Search history management
-
-#### Admin Functions
-- Get entity types
-- View search analytics
-- Update search configuration
-
-#### Sample Test Commands
-```bash
-# Test fuzzy search
-hurl --variable host=http://localhost:8080 tests/hurl/10_fuzzy_search.hurl
-
-# Test only basic search functionality
-hurl --variable host=http://localhost:8080 \
-     --include-only "basic search" \
-     tests/hurl/10_fuzzy_search.hurl
-
-# Test admin functions
-hurl --variable host=http://localhost:8080 \
-     --include-only "admin" \
-     tests/hurl/10_fuzzy_search.hurl
-```
 
 ## Test Data Setup
 
@@ -293,7 +244,7 @@ Test results are saved in JSON format in the `test_results/` directory:
 ### Analyzing Results
 ```bash
 # View test summary
-cat test_results/10_fuzzy_search.json | jq '.entries[].response.status'
+cat test_results/09_static_assets.json | jq '.entries[].response.status'
 
 # Check for failures
 grep -r "error" test_results/
@@ -331,7 +282,7 @@ done
 # Run specific tests during development
 hurl --variable host=http://localhost:8080 \
      --very-verbose \
-     tests/hurl/10_fuzzy_search.hurl
+     tests/hurl/09_static_assets.hurl
 ```
 
 ## Extending Tests
@@ -382,4 +333,6 @@ HTTP 404
 jsonpath "$.success" == false
 ```
 
-This comprehensive test suite ensures that all new features (PDF generation, static assets, and fuzzy search) are thoroughly tested and working correctly in the AE SaaS Basic system.
+This comprehensive test suite ensures that all features (PDF generation and static assets) are thoroughly tested and working correctly in the AE SaaS Basic system.
+
+**Note**: Fuzzy search functionality has been moved to the backend module. See the backend test suite for fuzzy search and general search API tests.
