@@ -34,7 +34,7 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 	emailHandler := handlers.NewEmailHandler(db)
 	userSettingsHandler := handlers.NewUserSettingsHandler(db)
 	staticHandler := handlers.NewStaticHandler("./statics")
-	
+
 	// Initialize PDF service and handler
 	pdfServiceConfig := &services.PDFConfig{
 		PageSize:     cfg.PDF.PageSize,
@@ -50,7 +50,7 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 	}
 	pdfService := services.NewPDFService(cfg.PDF.TemplateDir, cfg.PDF.OutputDir, pdfServiceConfig)
 	pdfHandler := handlers.NewPDFHandler(pdfService)
-	
+
 	// Initialize fuzzy search service and handler
 	fuzzySearchService := services.NewFuzzySearchService(db, nil)
 	fuzzySearchHandler := handlers.NewFuzzySearchHandler(fuzzySearchService)
@@ -73,10 +73,10 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 		// Static asset serving
 		public.GET("/assets/*path", staticHandler.ServeAsset)
 		public.GET("/logo", staticHandler.ServeLogo)
-		
+
 		// Public PDF routes (no public routes needed for PDF)
 		// All PDF functionality requires authentication
-		
+
 		// Public fuzzy search routes (basic search only)
 		search := public.Group("/search")
 		{
@@ -142,7 +142,7 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 			statics.GET("/assets", staticHandler.ListAssets)
 			statics.GET("/templates/:type/:template", staticHandler.ServeTemplate)
 		}
-		
+
 		// PDF generation routes (authenticated)
 		pdf := protected.Group("/pdf")
 		{
@@ -150,16 +150,16 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 			pdf.GET("/templates", pdfHandler.ListTemplates)
 			pdf.GET("/templates/:template", pdfHandler.GetTemplateInfo)
 			pdf.POST("/templates/:template/preview", pdfHandler.PreviewTemplate)
-			
+
 			// PDF generation
 			pdf.POST("/generate", pdfHandler.GeneratePDF)
 			pdf.POST("/generate/html", pdfHandler.GeneratePDFFromHTML)
 			pdf.POST("/generate/stream", pdfHandler.StreamPDF)
-			
+
 			// Configuration
 			pdf.GET("/config", pdfHandler.GetPDFConfig)
 		}
-		
+
 		// Fuzzy search routes (authenticated)
 		search := protected.Group("/search")
 		{
@@ -167,11 +167,11 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 			search.POST("", fuzzySearchHandler.Search)
 			search.POST("/advanced", fuzzySearchHandler.Search)
 			search.POST("/entities/:entity_type", fuzzySearchHandler.SearchInEntity)
-			
+
 			// Search management (authenticated only)
 			search.GET("/config", fuzzySearchHandler.GetSearchConfig)
 			search.GET("/stats", fuzzySearchHandler.SearchStats)
-			
+
 			// Authenticated search (GET)
 			search.GET("", fuzzySearchHandler.Search)
 		}
@@ -189,7 +189,7 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 			adminPlans.PUT("/:id", planHandler.UpdatePlan)
 			adminPlans.DELETE("/:id", planHandler.DeletePlan)
 		}
-		
+
 		// Admin search management
 		adminSearch := admin.Group("/search")
 		{

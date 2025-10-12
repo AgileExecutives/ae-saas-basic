@@ -10,106 +10,106 @@ import (
 
 // FuzzySearchService provides generalized fuzzy search functionality
 type FuzzySearchService struct {
-	db         *gorm.DB
-	config     FuzzySearchConfig
-	entities   map[string]EntityConfig
+	db       *gorm.DB
+	config   FuzzySearchConfig
+	entities map[string]EntityConfig
 }
 
 // FuzzySearchConfig holds configuration for fuzzy search behavior
 type FuzzySearchConfig struct {
-	MinSearchLength   int     `json:"min_search_length"`   // Minimum query length
-	MaxResults        int     `json:"max_results"`         // Maximum results per entity type
-	ScoreThreshold    float64 `json:"score_threshold"`     // Minimum relevance score
-	EnableHighlight   bool    `json:"enable_highlight"`    // Highlight matching text
-	CaseSensitive     bool    `json:"case_sensitive"`      // Case sensitive search
-	ExactMatchBoost   float64 `json:"exact_match_boost"`   // Score boost for exact matches
-	PrefixMatchBoost  float64 `json:"prefix_match_boost"`  // Score boost for prefix matches
-	EnableStemming    bool    `json:"enable_stemming"`     // Enable word stemming
-	EnableSynonyms    bool    `json:"enable_synonyms"`     // Enable synonym matching
+	MinSearchLength  int     `json:"min_search_length"`  // Minimum query length
+	MaxResults       int     `json:"max_results"`        // Maximum results per entity type
+	ScoreThreshold   float64 `json:"score_threshold"`    // Minimum relevance score
+	EnableHighlight  bool    `json:"enable_highlight"`   // Highlight matching text
+	CaseSensitive    bool    `json:"case_sensitive"`     // Case sensitive search
+	ExactMatchBoost  float64 `json:"exact_match_boost"`  // Score boost for exact matches
+	PrefixMatchBoost float64 `json:"prefix_match_boost"` // Score boost for prefix matches
+	EnableStemming   bool    `json:"enable_stemming"`    // Enable word stemming
+	EnableSynonyms   bool    `json:"enable_synonyms"`    // Enable synonym matching
 }
 
 // EntityConfig defines how to search within a specific entity type
 type EntityConfig struct {
-	TableName     string                 `json:"table_name"`
-	DisplayName   string                 `json:"display_name"`
-	SearchFields  []FieldConfig          `json:"search_fields"`
-	SelectFields  []string               `json:"select_fields"`
-	JoinTables    []JoinConfig           `json:"join_tables"`
-	WhereClause   string                 `json:"where_clause"`
-	OrderBy       string                 `json:"order_by"`
-	GroupBy       string                 `json:"group_by"`
-	Permissions   PermissionConfig       `json:"permissions"`
-	MetaData      map[string]interface{} `json:"metadata"`
+	TableName    string                 `json:"table_name"`
+	DisplayName  string                 `json:"display_name"`
+	SearchFields []FieldConfig          `json:"search_fields"`
+	SelectFields []string               `json:"select_fields"`
+	JoinTables   []JoinConfig           `json:"join_tables"`
+	WhereClause  string                 `json:"where_clause"`
+	OrderBy      string                 `json:"order_by"`
+	GroupBy      string                 `json:"group_by"`
+	Permissions  PermissionConfig       `json:"permissions"`
+	MetaData     map[string]interface{} `json:"metadata"`
 }
 
 // FieldConfig defines how to search within a specific field
 type FieldConfig struct {
-	Name          string  `json:"name"`
-	Weight        float64 `json:"weight"`        // Relevance weight for this field
-	SearchType    string  `json:"search_type"`   // exact, prefix, contains, fuzzy, fulltext
-	Boost         float64 `json:"boost"`         // Additional score boost
-	Analyzer      string  `json:"analyzer"`      // Text analyzer type
-	Required      bool    `json:"required"`      // Must match for result inclusion
-	MinLength     int     `json:"min_length"`    // Minimum query length for this field
-	Transform     string  `json:"transform"`     // Data transformation (lowercase, uppercase, etc.)
+	Name       string  `json:"name"`
+	Weight     float64 `json:"weight"`      // Relevance weight for this field
+	SearchType string  `json:"search_type"` // exact, prefix, contains, fuzzy, fulltext
+	Boost      float64 `json:"boost"`       // Additional score boost
+	Analyzer   string  `json:"analyzer"`    // Text analyzer type
+	Required   bool    `json:"required"`    // Must match for result inclusion
+	MinLength  int     `json:"min_length"`  // Minimum query length for this field
+	Transform  string  `json:"transform"`   // Data transformation (lowercase, uppercase, etc.)
 }
 
 // JoinConfig defines table joins for enhanced search
 type JoinConfig struct {
-	Table      string `json:"table"`
-	Condition  string `json:"condition"`
-	Type       string `json:"type"` // INNER, LEFT, RIGHT
-	SearchIn   bool   `json:"search_in"`
+	Table     string `json:"table"`
+	Condition string `json:"condition"`
+	Type      string `json:"type"` // INNER, LEFT, RIGHT
+	SearchIn  bool   `json:"search_in"`
 }
 
 // PermissionConfig defines access control for search
 type PermissionConfig struct {
-	RequireAuth      bool     `json:"require_auth"`
-	AllowedRoles     []string `json:"allowed_roles"`
-	OwnershipField   string   `json:"ownership_field"`
-	OrganizationField string  `json:"organization_field"`
+	RequireAuth       bool     `json:"require_auth"`
+	AllowedRoles      []string `json:"allowed_roles"`
+	OwnershipField    string   `json:"ownership_field"`
+	OrganizationField string   `json:"organization_field"`
 }
 
 // SearchResult represents a single search result
 type SearchResult struct {
-	ID          interface{} `json:"id"`
-	Type        string      `json:"type"`
-	Title       string      `json:"title"`
-	Description string      `json:"description"`
-	URL         string      `json:"url"`
-	Score       float64     `json:"score"`
-	Highlights  []string    `json:"highlights,omitempty"`
-	Data        interface{} `json:"data"`
+	ID          interface{}            `json:"id"`
+	Type        string                 `json:"type"`
+	Title       string                 `json:"title"`
+	Description string                 `json:"description"`
+	URL         string                 `json:"url"`
+	Score       float64                `json:"score"`
+	Highlights  []string               `json:"highlights,omitempty"`
+	Data        interface{}            `json:"data"`
 	MetaData    map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt   *time.Time  `json:"created_at,omitempty"`
-	UpdatedAt   *time.Time  `json:"updated_at,omitempty"`
+	CreatedAt   *time.Time             `json:"created_at,omitempty"`
+	UpdatedAt   *time.Time             `json:"updated_at,omitempty"`
 }
 
 // SearchResponse represents the complete search response
 type SearchResponse struct {
-	Query       string                    `json:"query"`
-	Total       int                       `json:"total"`
-	Results     []SearchResult            `json:"results"`
-	Aggregations map[string]interface{}   `json:"aggregations,omitempty"`
-	Suggestions []string                  `json:"suggestions,omitempty"`
-	Categories  map[string]int            `json:"categories,omitempty"`
+	Query         string                 `json:"query"`
+	Total         int                    `json:"total"`
+	Results       []SearchResult         `json:"results"`
+	Aggregations  map[string]interface{} `json:"aggregations,omitempty"`
+	Suggestions   []string               `json:"suggestions,omitempty"`
+	Categories    map[string]int         `json:"categories,omitempty"`
 	ExecutionTime time.Duration          `json:"execution_time"`
 }
 
 // SearchOptions defines search parameters
 type SearchOptions struct {
-	Query         string            `json:"query"`
-	EntityTypes   []string          `json:"entity_types,omitempty"`
-	Filters       map[string]interface{} `json:"filters,omitempty"`
-	SortBy        string            `json:"sort_by,omitempty"`
-	SortOrder     string            `json:"sort_order,omitempty"`
-	Offset        int               `json:"offset"`
-	Limit         int               `json:"limit"`
-	UserID        *uint             `json:"user_id,omitempty"`
-	OrganizationID *uint            `json:"organization_id,omitempty"`
-	IncludeCount  bool              `json:"include_count"`
-	IncludeAggregations bool        `json:"include_aggregations"`
-	HighlightFields []string        `json:"highlight_fields,omitempty"`
+	Query               string                 `json:"query"`
+	EntityTypes         []string               `json:"entity_types,omitempty"`
+	Filters             map[string]interface{} `json:"filters,omitempty"`
+	SortBy              string                 `json:"sort_by,omitempty"`
+	SortOrder           string                 `json:"sort_order,omitempty"`
+	Offset              int                    `json:"offset"`
+	Limit               int                    `json:"limit"`
+	UserID              *uint                  `json:"user_id,omitempty"`
+	OrganizationID      *uint                  `json:"organization_id,omitempty"`
+	IncludeCount        bool                   `json:"include_count"`
+	IncludeAggregations bool                   `json:"include_aggregations"`
+	HighlightFields     []string               `json:"highlight_fields,omitempty"`
 }
 
 // NewFuzzySearchService creates a new fuzzy search service
@@ -133,7 +133,7 @@ func NewFuzzySearchService(db *gorm.DB, config *FuzzySearchConfig) *FuzzySearchS
 // DefaultFuzzySearchConfig returns default search configuration
 func DefaultFuzzySearchConfig() *FuzzySearchConfig {
 	return &FuzzySearchConfig{
-		MinSearchLength:   2,
+		MinSearchLength:  2,
 		MaxResults:       50,
 		ScoreThreshold:   0.1,
 		EnableHighlight:  true,
@@ -473,7 +473,7 @@ func (s *FuzzySearchService) buildFuzzyPattern(term string) string {
 func (s *FuzzySearchService) tokenizeQuery(query string) []string {
 	// Simple tokenization - can be enhanced with stemming, stop words, etc.
 	terms := strings.Fields(strings.TrimSpace(query))
-	
+
 	// Remove empty terms and apply minimum length
 	var validTerms []string
 	for _, term := range terms {
@@ -681,7 +681,7 @@ func (s *FuzzySearchService) generateHighlights(fields []FieldConfig, row map[st
 // highlightText highlights search terms in text
 func (s *FuzzySearchService) highlightText(text string, terms []string) string {
 	highlighted := text
-	
+
 	for _, term := range terms {
 		if !s.config.CaseSensitive {
 			// Case-insensitive highlighting - find all occurrences

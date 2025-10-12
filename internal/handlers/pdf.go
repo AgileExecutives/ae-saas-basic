@@ -213,7 +213,7 @@ func (h *PDFHandler) PreviewTemplate(c *gin.Context) {
 // ListTemplates returns available PDF templates
 func (h *PDFHandler) ListTemplates(c *gin.Context) {
 	templates := h.pdfService.GetAvailableTemplates()
-	
+
 	c.JSON(http.StatusOK, gin.H{
 		"success":   true,
 		"templates": templates,
@@ -241,7 +241,7 @@ func (h *PDFHandler) GetTemplateInfo(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
+		"success":  true,
 		"template": info,
 	})
 }

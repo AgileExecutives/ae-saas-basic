@@ -17,7 +17,7 @@ type PDFTemplate struct {
 	Version     string    `json:"version" gorm:"default:'1.0'"`
 	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt   time.Time `json:"updated_at" gorm:"autoUpdateTime"`
-	
+
 	// Template metadata
 	RequiredFields []PDFTemplateField `json:"required_fields" gorm:"foreignKey:TemplateID"`
 	SampleData     string             `json:"sample_data,omitempty" gorm:"type:text"` // JSON string
@@ -25,30 +25,30 @@ type PDFTemplate struct {
 
 // PDFTemplateField represents required fields for a template
 type PDFTemplateField struct {
-	ID          uint   `json:"id" gorm:"primaryKey"`
-	TemplateID  uint   `json:"template_id"`
-	FieldName   string `json:"field_name" gorm:"not null"`
-	FieldType   string `json:"field_type" gorm:"not null"` // string, number, date, boolean, array, object
-	IsRequired  bool   `json:"is_required" gorm:"default:false"`
+	ID           uint   `json:"id" gorm:"primaryKey"`
+	TemplateID   uint   `json:"template_id"`
+	FieldName    string `json:"field_name" gorm:"not null"`
+	FieldType    string `json:"field_type" gorm:"not null"` // string, number, date, boolean, array, object
+	IsRequired   bool   `json:"is_required" gorm:"default:false"`
 	DefaultValue string `json:"default_value,omitempty"`
-	Description string `json:"description,omitempty"`
-	Validation  string `json:"validation,omitempty"` // JSON validation rules
+	Description  string `json:"description,omitempty"`
+	Validation   string `json:"validation,omitempty"` // JSON validation rules
 }
 
 // PDFGenerationLog represents a log entry for PDF generation
 type PDFGenerationLog struct {
-	ID           uint      `json:"id" gorm:"primaryKey"`
-	TemplateID   uint      `json:"template_id,omitempty"`
-	TemplateName string    `json:"template_name"`
-	UserID       uint      `json:"user_id,omitempty"`
-	Status       string    `json:"status"` // pending, success, error
-	FilePath     string    `json:"file_path,omitempty"`
-	FileSize     int64     `json:"file_size,omitempty"`
-	GenerationTime int64   `json:"generation_time"` // milliseconds
-	Error        string    `json:"error,omitempty"`
-	InputData    string    `json:"input_data,omitempty" gorm:"type:text"` // JSON string
-	Config       string    `json:"config,omitempty" gorm:"type:text"`     // JSON string
-	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"`
+	ID             uint      `json:"id" gorm:"primaryKey"`
+	TemplateID     uint      `json:"template_id,omitempty"`
+	TemplateName   string    `json:"template_name"`
+	UserID         uint      `json:"user_id,omitempty"`
+	Status         string    `json:"status"` // pending, success, error
+	FilePath       string    `json:"file_path,omitempty"`
+	FileSize       int64     `json:"file_size,omitempty"`
+	GenerationTime int64     `json:"generation_time"` // milliseconds
+	Error          string    `json:"error,omitempty"`
+	InputData      string    `json:"input_data,omitempty" gorm:"type:text"` // JSON string
+	Config         string    `json:"config,omitempty" gorm:"type:text"`     // JSON string
+	CreatedAt      time.Time `json:"created_at" gorm:"autoCreateTime"`
 }
 
 // PDFTemplateCategory represents template categories
@@ -69,24 +69,24 @@ type InvoiceData struct {
 	InvoiceNumber string    `json:"invoice_number" validate:"required"`
 	InvoiceDate   time.Time `json:"invoice_date" validate:"required"`
 	DueDate       time.Time `json:"due_date"`
-	
+
 	// Company information
 	Company CompanyInfo `json:"company" validate:"required"`
-	
+
 	// Customer information
 	Customer CustomerInfo `json:"customer" validate:"required"`
-	
+
 	// Invoice items
 	Items []InvoiceItem `json:"items" validate:"required,min=1"`
-	
+
 	// Totals
-	Subtotal    float64 `json:"subtotal"`
-	TaxRate     float64 `json:"tax_rate"`
-	TaxAmount   float64 `json:"tax_amount"`
-	Discount    float64 `json:"discount"`
-	Total       float64 `json:"total"`
-	Currency    string  `json:"currency" validate:"required"`
-	
+	Subtotal  float64 `json:"subtotal"`
+	TaxRate   float64 `json:"tax_rate"`
+	TaxAmount float64 `json:"tax_amount"`
+	Discount  float64 `json:"discount"`
+	Total     float64 `json:"total"`
+	Currency  string  `json:"currency" validate:"required"`
+
 	// Additional information
 	Notes       string `json:"notes,omitempty"`
 	Terms       string `json:"terms,omitempty"`
@@ -133,54 +133,54 @@ type InvoiceItem struct {
 // ReportData represents data structure for report templates
 type ReportData struct {
 	// Header information
-	Title       string    `json:"title" validate:"required"`
-	SubTitle    string    `json:"sub_title,omitempty"`
-	ReportDate  time.Time `json:"report_date" validate:"required"`
-	Period      string    `json:"period"`
-	
+	Title      string    `json:"title" validate:"required"`
+	SubTitle   string    `json:"sub_title,omitempty"`
+	ReportDate time.Time `json:"report_date" validate:"required"`
+	Period     string    `json:"period"`
+
 	// Company information
 	Company CompanyInfo `json:"company" validate:"required"`
-	
+
 	// Report sections
-	Summary     ReportSummary    `json:"summary,omitempty"`
-	Charts      []ChartData      `json:"charts,omitempty"`
-	Tables      []TableData      `json:"tables,omitempty"`
-	Metrics     []MetricData     `json:"metrics,omitempty"`
-	
+	Summary ReportSummary `json:"summary,omitempty"`
+	Charts  []ChartData   `json:"charts,omitempty"`
+	Tables  []TableData   `json:"tables,omitempty"`
+	Metrics []MetricData  `json:"metrics,omitempty"`
+
 	// Additional information
-	Notes       string `json:"notes,omitempty"`
-	Footer      string `json:"footer,omitempty"`
+	Notes  string `json:"notes,omitempty"`
+	Footer string `json:"footer,omitempty"`
 }
 
 // ReportSummary represents summary section of a report
 type ReportSummary struct {
-	Text        string             `json:"text"`
-	KeyMetrics  []KeyMetric        `json:"key_metrics,omitempty"`
-	Highlights  []string           `json:"highlights,omitempty"`
+	Text       string      `json:"text"`
+	KeyMetrics []KeyMetric `json:"key_metrics,omitempty"`
+	Highlights []string    `json:"highlights,omitempty"`
 }
 
 // KeyMetric represents a key metric
 type KeyMetric struct {
-	Label       string  `json:"label" validate:"required"`
-	Value       string  `json:"value" validate:"required"`
-	Change      string  `json:"change,omitempty"`
-	ChangeType  string  `json:"change_type,omitempty"` // positive, negative, neutral
+	Label      string `json:"label" validate:"required"`
+	Value      string `json:"value" validate:"required"`
+	Change     string `json:"change,omitempty"`
+	ChangeType string `json:"change_type,omitempty"` // positive, negative, neutral
 }
 
 // ChartData represents chart data for reports
 type ChartData struct {
-	Title       string      `json:"title" validate:"required"`
-	Type        string      `json:"type" validate:"required"` // bar, line, pie, etc.
-	Data        interface{} `json:"data" validate:"required"`
-	Options     interface{} `json:"options,omitempty"`
+	Title   string      `json:"title" validate:"required"`
+	Type    string      `json:"type" validate:"required"` // bar, line, pie, etc.
+	Data    interface{} `json:"data" validate:"required"`
+	Options interface{} `json:"options,omitempty"`
 }
 
 // TableData represents table data for reports
 type TableData struct {
-	Title       string              `json:"title" validate:"required"`
-	Headers     []string            `json:"headers" validate:"required"`
-	Rows        [][]string          `json:"rows" validate:"required"`
-	Footer      []string            `json:"footer,omitempty"`
+	Title   string     `json:"title" validate:"required"`
+	Headers []string   `json:"headers" validate:"required"`
+	Rows    [][]string `json:"rows" validate:"required"`
+	Footer  []string   `json:"footer,omitempty"`
 }
 
 // MetricData represents metric data
@@ -198,46 +198,46 @@ type CertificateData struct {
 	CertificateNumber string    `json:"certificate_number" validate:"required"`
 	IssueDate         time.Time `json:"issue_date" validate:"required"`
 	ExpiryDate        time.Time `json:"expiry_date,omitempty"`
-	
+
 	// Recipient information
-	RecipientName     string `json:"recipient_name" validate:"required"`
-	RecipientTitle    string `json:"recipient_title,omitempty"`
-	
+	RecipientName  string `json:"recipient_name" validate:"required"`
+	RecipientTitle string `json:"recipient_title,omitempty"`
+
 	// Certificate details
-	Title             string `json:"title" validate:"required"`
-	Description       string `json:"description"`
-	CourseInfo        string `json:"course_info,omitempty"`
-	Achievements      []string `json:"achievements,omitempty"`
-	
+	Title        string   `json:"title" validate:"required"`
+	Description  string   `json:"description"`
+	CourseInfo   string   `json:"course_info,omitempty"`
+	Achievements []string `json:"achievements,omitempty"`
+
 	// Issuer information
-	IssuerName        string `json:"issuer_name" validate:"required"`
-	IssuerTitle       string `json:"issuer_title,omitempty"`
-	IssuerSignature   string `json:"issuer_signature,omitempty"`
-	IssuerLogo        string `json:"issuer_logo,omitempty"`
-	
+	IssuerName      string `json:"issuer_name" validate:"required"`
+	IssuerTitle     string `json:"issuer_title,omitempty"`
+	IssuerSignature string `json:"issuer_signature,omitempty"`
+	IssuerLogo      string `json:"issuer_logo,omitempty"`
+
 	// Additional information
-	CredentialID      string `json:"credential_id,omitempty"`
-	VerificationURL   string `json:"verification_url,omitempty"`
+	CredentialID    string `json:"credential_id,omitempty"`
+	VerificationURL string `json:"verification_url,omitempty"`
 }
 
 // LetterData represents data structure for letter templates
 type LetterData struct {
 	// Header information
-	Date        time.Time `json:"date" validate:"required"`
-	Reference   string    `json:"reference,omitempty"`
-	
+	Date      time.Time `json:"date" validate:"required"`
+	Reference string    `json:"reference,omitempty"`
+
 	// Sender information
-	Sender      ContactInfo `json:"sender" validate:"required"`
-	
+	Sender ContactInfo `json:"sender" validate:"required"`
+
 	// Recipient information
-	Recipient   ContactInfo `json:"recipient" validate:"required"`
-	
+	Recipient ContactInfo `json:"recipient" validate:"required"`
+
 	// Letter content
-	Subject     string `json:"subject" validate:"required"`
-	Salutation  string `json:"salutation"`
-	Body        string `json:"body" validate:"required"`
-	Closing     string `json:"closing"`
-	
+	Subject    string `json:"subject" validate:"required"`
+	Salutation string `json:"salutation"`
+	Body       string `json:"body" validate:"required"`
+	Closing    string `json:"closing"`
+
 	// Additional information
 	Attachments []string `json:"attachments,omitempty"`
 	CopyTo      []string `json:"copy_to,omitempty"`
@@ -245,16 +245,16 @@ type LetterData struct {
 
 // ContactInfo represents contact information
 type ContactInfo struct {
-	Name        string `json:"name" validate:"required"`
-	Title       string `json:"title,omitempty"`
-	Company     string `json:"company,omitempty"`
-	Address     string `json:"address"`
-	City        string `json:"city"`
-	State       string `json:"state"`
-	ZipCode     string `json:"zip_code"`
-	Country     string `json:"country"`
-	Phone       string `json:"phone"`
-	Email       string `json:"email"`
+	Name    string `json:"name" validate:"required"`
+	Title   string `json:"title,omitempty"`
+	Company string `json:"company,omitempty"`
+	Address string `json:"address"`
+	City    string `json:"city"`
+	State   string `json:"state"`
+	ZipCode string `json:"zip_code"`
+	Country string `json:"country"`
+	Phone   string `json:"phone"`
+	Email   string `json:"email"`
 }
 
 // PDF Template Validation Interface
@@ -271,23 +271,23 @@ type TemplateValidator interface {
 // ValidateInvoiceData validates invoice template data
 func ValidateInvoiceData(data InvoiceData) []string {
 	var errors []string
-	
+
 	if data.InvoiceNumber == "" {
 		errors = append(errors, "invoice_number is required")
 	}
-	
+
 	if data.Company.Name == "" {
 		errors = append(errors, "company name is required")
 	}
-	
+
 	if data.Customer.Name == "" {
 		errors = append(errors, "customer name is required")
 	}
-	
+
 	if len(data.Items) == 0 {
 		errors = append(errors, "at least one invoice item is required")
 	}
-	
+
 	for i, item := range data.Items {
 		if item.Description == "" {
 			errors = append(errors, fmt.Sprintf("item %d: description is required", i+1))
@@ -299,44 +299,44 @@ func ValidateInvoiceData(data InvoiceData) []string {
 			errors = append(errors, fmt.Sprintf("item %d: unit price cannot be negative", i+1))
 		}
 	}
-	
+
 	return errors
 }
 
 // ValidateReportData validates report template data
 func ValidateReportData(data ReportData) []string {
 	var errors []string
-	
+
 	if data.Title == "" {
 		errors = append(errors, "title is required")
 	}
-	
+
 	if data.Company.Name == "" {
 		errors = append(errors, "company name is required")
 	}
-	
+
 	return errors
 }
 
 // ValidateCertificateData validates certificate template data
 func ValidateCertificateData(data CertificateData) []string {
 	var errors []string
-	
+
 	if data.CertificateNumber == "" {
 		errors = append(errors, "certificate_number is required")
 	}
-	
+
 	if data.RecipientName == "" {
 		errors = append(errors, "recipient_name is required")
 	}
-	
+
 	if data.Title == "" {
 		errors = append(errors, "title is required")
 	}
-	
+
 	if data.IssuerName == "" {
 		errors = append(errors, "issuer_name is required")
 	}
-	
+
 	return errors
 }

@@ -4,12 +4,12 @@ import (
 	"log"
 	"net/http"
 
+	_ "github.com/ae-saas-basic/ae-saas-basic/docs" // swagger docs
 	"github.com/ae-saas-basic/ae-saas-basic/internal/config"
 	"github.com/ae-saas-basic/ae-saas-basic/internal/database"
 	"github.com/ae-saas-basic/ae-saas-basic/internal/router"
 	"github.com/ae-saas-basic/ae-saas-basic/pkg/auth"
 	"github.com/gin-gonic/gin"
-	_ "github.com/ae-saas-basic/ae-saas-basic/docs" // swagger docs
 )
 
 // @title AE SaaS Basic API

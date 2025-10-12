@@ -16,17 +16,17 @@ import (
 
 // PDFConfig holds configuration for PDF generation
 type PDFConfig struct {
-	PageSize     string            `json:"page_size"`     // A4, A3, Letter, Legal
-	Orientation  string            `json:"orientation"`   // Portrait, Landscape
-	MarginTop    string            `json:"margin_top"`    // 1cm, 0.75in
-	MarginRight  string            `json:"margin_right"`  
-	MarginBottom string            `json:"margin_bottom"` 
-	MarginLeft   string            `json:"margin_left"`   
-	Quality      int               `json:"quality"`       // 1-100
+	PageSize     string            `json:"page_size"`   // A4, A3, Letter, Legal
+	Orientation  string            `json:"orientation"` // Portrait, Landscape
+	MarginTop    string            `json:"margin_top"`  // 1cm, 0.75in
+	MarginRight  string            `json:"margin_right"`
+	MarginBottom string            `json:"margin_bottom"`
+	MarginLeft   string            `json:"margin_left"`
+	Quality      int               `json:"quality"` // 1-100
 	Grayscale    bool              `json:"grayscale"`
 	LowQuality   bool              `json:"low_quality"`
 	EnableJS     bool              `json:"enable_js"`
-	LoadTimeout  int               `json:"load_timeout"`  // seconds
+	LoadTimeout  int               `json:"load_timeout"` // seconds
 	Headers      map[string]string `json:"headers"`
 }
 
@@ -36,7 +36,7 @@ func DefaultPDFConfig() PDFConfig {
 		PageSize:     "A4",
 		Orientation:  "Portrait",
 		MarginTop:    "1cm",
-		MarginRight:  "1cm", 
+		MarginRight:  "1cm",
 		MarginBottom: "1cm",
 		MarginLeft:   "1cm",
 		Quality:      80,
@@ -50,9 +50,9 @@ func DefaultPDFConfig() PDFConfig {
 
 // PDFTemplateData represents data to be injected into PDF templates
 type PDFTemplateData struct {
-	Template   string                 `json:"template"`   // template name
-	Data       map[string]interface{} `json:"data"`       // template data
-	Config     *PDFConfig             `json:"config"`     // optional config override
+	Template   string                 `json:"template"`    // template name
+	Data       map[string]interface{} `json:"data"`        // template data
+	Config     *PDFConfig             `json:"config"`      // optional config override
 	OutputPath string                 `json:"output_path"` // optional file output path
 }
 
@@ -188,10 +188,10 @@ func (s *PDFService) GeneratePDFFromHTML(ctx context.Context, html string, confi
 
 	// Build wkhtmltopdf command
 	args := s.buildWkHtmlToPdfArgs(config, tmpHtmlFile.Name(), tmpPdfFile.Name())
-	
+
 	// Execute command with context
 	cmd := exec.CommandContext(ctx, "wkhtmltopdf", args...)
-	
+
 	// Capture output for debugging
 	var stdout, stderr bytes.Buffer
 	cmd.Stdout = &stdout
@@ -361,11 +361,11 @@ func (s *PDFService) GetTemplateInfo(templateName string) (map[string]interface{
 	}
 
 	return map[string]interface{}{
-		"name":         templateName,
-		"path":         templatePath,
-		"size":         stat.Size(),
-		"modified":     stat.ModTime(),
-		"available":    true,
+		"name":      templateName,
+		"path":      templatePath,
+		"size":      stat.Size(),
+		"modified":  stat.ModTime(),
+		"available": true,
 	}, nil
 }
 

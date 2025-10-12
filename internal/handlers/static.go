@@ -30,24 +30,24 @@ func NewStaticHandler(staticDir string) *StaticHandler {
 // @Router /assets/{path} [get]
 func (h *StaticHandler) ServeAsset(c *gin.Context) {
 	path := c.Param("path")
-	
+
 	// Security check: prevent directory traversal
 	if strings.Contains(path, "..") || strings.Contains(path, "~") {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Invalid path"})
 		return
 	}
-	
+
 	fullPath := filepath.Join(h.staticDir, "assets", path)
-	
+
 	// Check if file exists
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Asset not found"})
 		return
 	}
-	
+
 	// Set appropriate content type and cache headers
 	h.setContentHeaders(c, path)
-	
+
 	c.File(fullPath)
 }
 
@@ -65,36 +65,36 @@ func (h *StaticHandler) ServeAsset(c *gin.Context) {
 func (h *StaticHandler) ServeTemplate(c *gin.Context) {
 	templateType := c.Param("type")
 	templateName := c.Param("template")
-	
+
 	// Validate template type
 	if templateType != "email" && templateType != "pdf" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid template type"})
 		return
 	}
-	
+
 	// Security checks
 	if strings.Contains(templateName, "..") || strings.Contains(templateName, "~") {
 		c.JSON(http.StatusForbidden, gin.H{"error": "Invalid template name"})
 		return
 	}
-	
+
 	var fullPath string
 	if templateType == "email" {
 		fullPath = filepath.Join(h.staticDir, "email_templates", templateName)
 	} else {
 		fullPath = filepath.Join(h.staticDir, "pdf_templates", templateName)
 	}
-	
+
 	// Check if file exists
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Template not found"})
 		return
 	}
-	
+
 	// Set HTML content type
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.Header("Cache-Control", "no-cache, no-store, must-revalidate")
-	
+
 	c.File(fullPath)
 }
 
@@ -108,7 +108,7 @@ func (h *StaticHandler) ServeTemplate(c *gin.Context) {
 // @Router /logo [get]
 func (h *StaticHandler) ServeLogo(c *gin.Context) {
 	format := c.DefaultQuery("format", "svg")
-	
+
 	var filename string
 	switch format {
 	case "svg":
@@ -122,9 +122,9 @@ func (h *StaticHandler) ServeLogo(c *gin.Context) {
 	default:
 		filename = "logo.svg"
 	}
-	
+
 	fullPath := filepath.Join(h.staticDir, "images", filename)
-	
+
 	// Check if file exists
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		// Fallback to default SVG logo
@@ -134,11 +134,11 @@ func (h *StaticHandler) ServeLogo(c *gin.Context) {
 			return
 		}
 	}
-	
+
 	// Set appropriate headers
 	h.setContentHeaders(c, filename)
 	c.Header("Cache-Control", "public, max-age=86400") // Cache for 1 day
-	
+
 	c.File(fullPath)
 }
 
@@ -153,29 +153,29 @@ func (h *StaticHandler) ServeLogo(c *gin.Context) {
 // @Router /assets [get]
 func (h *StaticHandler) ListAssets(c *gin.Context) {
 	assetType := c.Query("type")
-	
+
 	assets := make(map[string][]string)
-	
+
 	// List CSS files
 	cssFiles, _ := h.listFiles(filepath.Join(h.staticDir, "assets", "css"), ".css")
 	assets["css"] = cssFiles
-	
+
 	// List JS files
 	jsFiles, _ := h.listFiles(filepath.Join(h.staticDir, "assets", "js"), ".js")
 	assets["js"] = jsFiles
-	
+
 	// List image files
 	imageFiles, _ := h.listFiles(filepath.Join(h.staticDir, "images"), ".svg", ".png", ".jpg", ".jpeg", ".gif")
 	assets["images"] = imageFiles
-	
+
 	// List email templates
 	emailTemplates, _ := h.listFiles(filepath.Join(h.staticDir, "email_templates"), ".html")
 	assets["email_templates"] = emailTemplates
-	
+
 	// List PDF templates
 	pdfTemplates, _ := h.listFiles(filepath.Join(h.staticDir, "pdf_templates"), ".html")
 	assets["pdf_templates"] = pdfTemplates
-	
+
 	// Filter by type if specified
 	if assetType != "" {
 		if filtered, exists := assets[assetType]; exists {
@@ -185,14 +185,14 @@ func (h *StaticHandler) ListAssets(c *gin.Context) {
 		}
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{"assets": assets})
 }
 
 // setContentHeaders sets appropriate content type and cache headers
 func (h *StaticHandler) setContentHeaders(c *gin.Context, filename string) {
 	ext := strings.ToLower(filepath.Ext(filename))
-	
+
 	switch ext {
 	case ".css":
 		c.Header("Content-Type", "text/css; charset=utf-8")
@@ -227,17 +227,17 @@ func (h *StaticHandler) setContentHeaders(c *gin.Context, filename string) {
 // listFiles lists files in a directory with specified extensions
 func (h *StaticHandler) listFiles(dir string, extensions ...string) ([]string, error) {
 	var files []string
-	
+
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return files, err
 	}
-	
+
 	extMap := make(map[string]bool)
 	for _, ext := range extensions {
 		extMap[strings.ToLower(ext)] = true
 	}
-	
+
 	for _, entry := range entries {
 		if !entry.IsDir() {
 			ext := strings.ToLower(filepath.Ext(entry.Name()))
@@ -246,6 +246,6 @@ func (h *StaticHandler) listFiles(dir string, extensions ...string) ([]string, e
 			}
 		}
 	}
-	
+
 	return files, nil
 }

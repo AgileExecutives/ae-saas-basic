@@ -26,16 +26,16 @@ func NewFuzzySearchHandler(fuzzySearchService *services.FuzzySearchService) *Fuz
 
 // SearchRequest represents a fuzzy search request
 type SearchRequest struct {
-	Query         string                 `json:"query" binding:"required,min=1"`
-	EntityTypes   []string               `json:"entity_types,omitempty"`
-	Filters       map[string]interface{} `json:"filters,omitempty"`
-	SortBy        string                 `json:"sort_by,omitempty"`
-	SortOrder     string                 `json:"sort_order,omitempty"`
-	Offset        int                    `json:"offset"`
-	Limit         int                    `json:"limit"`
-	IncludeCount  bool                   `json:"include_count"`
-	IncludeAggregations bool             `json:"include_aggregations"`
-	HighlightFields []string             `json:"highlight_fields,omitempty"`
+	Query               string                 `json:"query" binding:"required,min=1"`
+	EntityTypes         []string               `json:"entity_types,omitempty"`
+	Filters             map[string]interface{} `json:"filters,omitempty"`
+	SortBy              string                 `json:"sort_by,omitempty"`
+	SortOrder           string                 `json:"sort_order,omitempty"`
+	Offset              int                    `json:"offset"`
+	Limit               int                    `json:"limit"`
+	IncludeCount        bool                   `json:"include_count"`
+	IncludeAggregations bool                   `json:"include_aggregations"`
+	HighlightFields     []string               `json:"highlight_fields,omitempty"`
 }
 
 // QuickSearchRequest represents a simplified search request
@@ -196,7 +196,7 @@ func (h *FuzzySearchHandler) SearchInEntity(c *gin.Context) {
 	entityTypes := h.fuzzySearchService.GetEntityTypes()
 	if _, exists := entityTypes[entityType]; !exists {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Invalid entity type",
+			"error":       "Invalid entity type",
 			"valid_types": getEntityTypeNames(entityTypes),
 		})
 		return
@@ -257,7 +257,7 @@ func (h *FuzzySearchHandler) SearchInEntity(c *gin.Context) {
 // GetEntityTypes returns available entity types for search
 func (h *FuzzySearchHandler) GetEntityTypes(c *gin.Context) {
 	entityTypes := h.fuzzySearchService.GetEntityTypes()
-	
+
 	// Convert to response format
 	responseTypes := make(map[string]EntityTypeInfo)
 	for name, config := range entityTypes {
@@ -358,7 +358,7 @@ func (h *FuzzySearchHandler) SearchSuggestions(c *gin.Context) {
 
 	// Add entity-specific suggestions
 	for _, config := range entityTypes {
-		suggestions = append(suggestions, 
+		suggestions = append(suggestions,
 			fmt.Sprintf("Search %s by name", config.DisplayName),
 			fmt.Sprintf("Find %s by email", config.DisplayName),
 		)
@@ -428,12 +428,12 @@ func getEntityTypeNames(entityTypes map[string]services.EntityConfig) []string {
 func (h *FuzzySearchHandler) SearchStats(c *gin.Context) {
 	// This could be enhanced with actual search analytics
 	entityTypes := h.fuzzySearchService.GetEntityTypes()
-	
+
 	stats := gin.H{
 		"total_entity_types": len(entityTypes),
 		"entity_types":       getEntityTypeNames(entityTypes),
 		"search_config":      h.fuzzySearchService.GetConfig(),
-		"status":            "active",
+		"status":             "active",
 	}
 
 	c.JSON(http.StatusOK, stats)
@@ -442,11 +442,11 @@ func (h *FuzzySearchHandler) SearchStats(c *gin.Context) {
 // HealthCheck returns the health status of the search service
 func (h *FuzzySearchHandler) HealthCheck(c *gin.Context) {
 	entityTypes := h.fuzzySearchService.GetEntityTypes()
-	
+
 	c.JSON(http.StatusOK, gin.H{
-		"status":         "healthy",
-		"service":        "fuzzy_search",
-		"entity_types":   len(entityTypes),
-		"last_check":     time.Now(),
+		"status":       "healthy",
+		"service":      "fuzzy_search",
+		"entity_types": len(entityTypes),
+		"last_check":   time.Now(),
 	})
 }

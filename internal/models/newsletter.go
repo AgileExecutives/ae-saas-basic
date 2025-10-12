@@ -65,16 +65,16 @@ type ContactFormRequest struct {
 	Subject      string `json:"subject" binding:"required"`
 	Message      string `json:"message" binding:"required"`
 	Company      string `json:"company"`
-	Newsletter   bool   `json:"newsletter"`           // whether to subscribe to newsletter
-	Source       string `json:"source,omitempty"`     // form source identifier
-	CaptchaToken string `json:"captcha_token"`        // for spam protection
+	Newsletter   bool   `json:"newsletter"`       // whether to subscribe to newsletter
+	Source       string `json:"source,omitempty"` // form source identifier
+	CaptchaToken string `json:"captcha_token"`    // for spam protection
 }
 
 // ContactFormResponse represents the response for contact form submission
 type ContactFormResponse struct {
-	Success       bool   `json:"success"`
-	Message       string `json:"message"`
-	ContactID     uint   `json:"contact_id,omitempty"`
-	NewsletterID  uint   `json:"newsletter_id,omitempty"`
-	SubscribedTo  bool   `json:"subscribed_to_newsletter,omitempty"`
+	Success      bool   `json:"success"`
+	Message      string `json:"message"`
+	ContactID    uint   `json:"contact_id,omitempty"`
+	NewsletterID uint   `json:"newsletter_id,omitempty"`
+	SubscribedTo bool   `json:"subscribed_to_newsletter,omitempty"`
 }

@@ -34,36 +34,36 @@ type SearchPreference struct {
 
 // SavedSearch represents saved search queries
 type SavedSearch struct {
-	ID             uint      `json:"id" gorm:"primaryKey"`
-	Name           string    `json:"name" gorm:"not null"`
-	Description    string    `json:"description"`
-	Query          string    `json:"query" gorm:"not null"`
-	EntityTypes    string    `json:"entity_types"` // JSON array as string
-	Filters        string    `json:"filters"`      // JSON object as string
-	UserID         uint      `json:"user_id" gorm:"not null"`
-	OrganizationID uint      `json:"organization_id" gorm:"not null"`
-	IsPublic       bool      `json:"is_public" gorm:"default:false"`
-	UseCount       int       `json:"use_count" gorm:"default:0"`
+	ID             uint       `json:"id" gorm:"primaryKey"`
+	Name           string     `json:"name" gorm:"not null"`
+	Description    string     `json:"description"`
+	Query          string     `json:"query" gorm:"not null"`
+	EntityTypes    string     `json:"entity_types"` // JSON array as string
+	Filters        string     `json:"filters"`      // JSON object as string
+	UserID         uint       `json:"user_id" gorm:"not null"`
+	OrganizationID uint       `json:"organization_id" gorm:"not null"`
+	IsPublic       bool       `json:"is_public" gorm:"default:false"`
+	UseCount       int        `json:"use_count" gorm:"default:0"`
 	LastUsedAt     *time.Time `json:"last_used_at,omitempty"`
-	CreatedAt      time.Time `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt      time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	CreatedAt      time.Time  `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt      time.Time  `json:"updated_at" gorm:"autoUpdateTime"`
 }
 
 // SearchableEntity represents entities that can be searched
 type SearchableEntity struct {
-	ID              uint      `json:"id" gorm:"primaryKey"`
-	EntityType      string    `json:"entity_type" gorm:"unique;not null"`
-	DisplayName     string    `json:"display_name" gorm:"not null"`
-	Table           string    `json:"table" gorm:"not null"`
-	SearchFields    string    `json:"search_fields"` // JSON array of field configs
-	SelectFields    string    `json:"select_fields"` // JSON array
-	JoinTables      string    `json:"join_tables"`   // JSON array of join configs
-	WhereClause     string    `json:"where_clause"`
-	OrderBy         string    `json:"order_by"`
-	Permissions     string    `json:"permissions"` // JSON object
-	IsActive        bool      `json:"is_active" gorm:"default:true"`
-	CreatedAt       time.Time `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt       time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	ID           uint      `json:"id" gorm:"primaryKey"`
+	EntityType   string    `json:"entity_type" gorm:"unique;not null"`
+	DisplayName  string    `json:"display_name" gorm:"not null"`
+	Table        string    `json:"table" gorm:"not null"`
+	SearchFields string    `json:"search_fields"` // JSON array of field configs
+	SelectFields string    `json:"select_fields"` // JSON array
+	JoinTables   string    `json:"join_tables"`   // JSON array of join configs
+	WhereClause  string    `json:"where_clause"`
+	OrderBy      string    `json:"order_by"`
+	Permissions  string    `json:"permissions"` // JSON object
+	IsActive     bool      `json:"is_active" gorm:"default:true"`
+	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"`
+	UpdatedAt    time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
 
 // SearchIndex represents search index entries for faster lookups
@@ -109,25 +109,25 @@ type Searchable interface {
 
 // SearchResultItem represents a single search result with metadata
 type SearchResultItem struct {
-	ID           interface{}            `json:"id"`
-	Type         string                 `json:"type"`
-	Title        string                 `json:"title"`
-	Description  string                 `json:"description"`
-	URL          string                 `json:"url"`
-	Score        float64                `json:"score"`
-	Highlights   []string               `json:"highlights,omitempty"`
-	Thumbnail    string                 `json:"thumbnail,omitempty"`
-	Tags         []string               `json:"tags,omitempty"`
-	Data         map[string]interface{} `json:"data"`
-	MetaData     map[string]interface{} `json:"metadata,omitempty"`
-	CreatedAt    *time.Time             `json:"created_at,omitempty"`
-	UpdatedAt    *time.Time             `json:"updated_at,omitempty"`
+	ID          interface{}            `json:"id"`
+	Type        string                 `json:"type"`
+	Title       string                 `json:"title"`
+	Description string                 `json:"description"`
+	URL         string                 `json:"url"`
+	Score       float64                `json:"score"`
+	Highlights  []string               `json:"highlights,omitempty"`
+	Thumbnail   string                 `json:"thumbnail,omitempty"`
+	Tags        []string               `json:"tags,omitempty"`
+	Data        map[string]interface{} `json:"data"`
+	MetaData    map[string]interface{} `json:"metadata,omitempty"`
+	CreatedAt   *time.Time             `json:"created_at,omitempty"`
+	UpdatedAt   *time.Time             `json:"updated_at,omitempty"`
 }
 
 // SearchFacet represents search facets for filtering
 type SearchFacet struct {
-	Name   string              `json:"name"`
-	Values []SearchFacetValue  `json:"values"`
+	Name   string             `json:"name"`
+	Values []SearchFacetValue `json:"values"`
 }
 
 // SearchFacetValue represents individual facet values
@@ -138,9 +138,9 @@ type SearchFacetValue struct {
 
 // SearchAggregation represents search aggregation results
 type SearchAggregation struct {
-	Name    string                 `json:"name"`
-	Type    string                 `json:"type"` // count, avg, sum, min, max
-	Value   interface{}            `json:"value"`
+	Name    string                    `json:"name"`
+	Type    string                    `json:"type"` // count, avg, sum, min, max
+	Value   interface{}               `json:"value"`
 	Buckets []SearchAggregationBucket `json:"buckets,omitempty"`
 }
 
@@ -155,13 +155,13 @@ type SearchAggregationBucket struct {
 
 // AdvancedSearchRequest represents an advanced search with complex filtering
 type AdvancedSearchRequest struct {
-	Query       string                 `json:"query"`
-	Filters     []SearchFilter         `json:"filters,omitempty"`
-	Sort        []SearchSort           `json:"sort,omitempty"`
-	Facets      []string               `json:"facets,omitempty"`
+	Query        string                     `json:"query"`
+	Filters      []SearchFilter             `json:"filters,omitempty"`
+	Sort         []SearchSort               `json:"sort,omitempty"`
+	Facets       []string                   `json:"facets,omitempty"`
 	Aggregations []SearchAggregationRequest `json:"aggregations,omitempty"`
-	Highlight   SearchHighlight        `json:"highlight,omitempty"`
-	Pagination  SearchPagination       `json:"pagination"`
+	Highlight    SearchHighlight            `json:"highlight,omitempty"`
+	Pagination   SearchPagination           `json:"pagination"`
 }
 
 // SearchFilter represents a search filter
@@ -202,14 +202,14 @@ type SearchPagination struct {
 
 // AdvancedSearchResponse represents advanced search results
 type AdvancedSearchResponse struct {
-	Query        string                   `json:"query"`
-	Total        int                      `json:"total"`
-	Results      []SearchResultItem       `json:"results"`
-	Facets       []SearchFacet           `json:"facets,omitempty"`
-	Aggregations []SearchAggregation     `json:"aggregations,omitempty"`
-	Suggestions  []string                `json:"suggestions,omitempty"`
+	Query         string                 `json:"query"`
+	Total         int                    `json:"total"`
+	Results       []SearchResultItem     `json:"results"`
+	Facets        []SearchFacet          `json:"facets,omitempty"`
+	Aggregations  []SearchAggregation    `json:"aggregations,omitempty"`
+	Suggestions   []string               `json:"suggestions,omitempty"`
 	ExecutionTime time.Duration          `json:"execution_time"`
-	Debug        map[string]interface{}  `json:"debug,omitempty"`
+	Debug         map[string]interface{} `json:"debug,omitempty"`
 }
 
 // Search analytics and reporting structures
