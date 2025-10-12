@@ -47,6 +47,7 @@ func Migrate(db *gorm.DB) error {
 		&models.Customer{},
 		&models.Contact{},
 		&models.Email{},
+		&models.Newsletter{},
 		&models.UserSettings{},
 		&models.TokenBlacklist{},
 	)

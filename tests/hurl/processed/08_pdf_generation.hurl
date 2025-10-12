@@ -5,9 +5,9 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "username": "testuser_1760213272_31b81a8d",
-  "email": "test_1760213272_31b81a8d@example.com",
-  "password": "Pass123_31b81a8d",
+  "username": "testuser_1760274274_744bbae1",
+  "email": "test_1760274274_744bbae1@example.com",
+  "password": "Pass123_744bbae1",
   "first_name": "PDF",
   "last_name": "Tester",
   "organization_id": 1
@@ -20,8 +20,8 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "username": "testuser_1760213272_31b81a8d",
-  "password": "Pass123_31b81a8d"
+  "username": "testuser_1760274274_744bbae1",
+  "password": "Pass123_744bbae1"
 }
 
 HTTP 200
@@ -53,7 +53,7 @@ POST http://localhost:8080/api/v1/pdf/generate/html
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "html": "<html><body><h1>Test PDF 1760213272_31b81a8d</h1><p>Generated for user: testuser_1760213272_31b81a8d</p><p>Email: test_1760213272_31b81a8d@example.com</p></body></html>",
+  "html": "<html><body><h1>Test PDF 1760274274_744bbae1</h1><p>Generated for user: testuser_1760274274_744bbae1</p><p>Email: test_1760274274_744bbae1@example.com</p></body></html>",
   "config": {
     "page_size": "A4",
     "orientation": "portrait",
@@ -76,11 +76,11 @@ Content-Type: application/json
 {
   "template": "report",
   "data": {
-    "invoice_number": "INV-1760213272_31b81a8d",
-    "customer_name": "customer_1760213272_31b81a8d",
+    "invoice_number": "INV-1760274274_744bbae1",
+    "customer_name": "customer_1760274274_744bbae1",
     "amount": "€123.45",
     "date": "2025-10-11",
-    "unique_id": "1760213272_31b81a8d"
+    "unique_id": "1760274274_744bbae1"
   },
   "save": true
 }
@@ -97,7 +97,7 @@ Content-Type: application/json
 {
   "template": "report",
   "data": {
-    "title": "Stream Test 1760213272_31b81a8d",
+    "title": "Stream Test 1760274274_744bbae1",
     "content": "PDF streaming test"
   }
 }
@@ -118,7 +118,7 @@ POST http://localhost:8080/api/v1/pdf/generate/html
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "html": "<invalid><html><broken>1760213272_31b81a8d",
+  "html": "<invalid><html><broken>1760274274_744bbae1",
   "save": false
 }
 
@@ -139,7 +139,7 @@ POST http://localhost:8080/api/v1/pdf/generate/html
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "html": "<html><head><title>Custom PDF 1760213272_31b81a8d</title></head><body><h1>Custom Options Test</h1><p>Test ID: 1760213272_31b81a8d</p></body></html>",
+  "html": "<html><head><title>Custom PDF 1760274274_744bbae1</title></head><body><h1>Custom Options Test</h1><p>Test ID: 1760274274_744bbae1</p></body></html>",
   "config": {
     "page_size": "A3",
     "orientation": "landscape",

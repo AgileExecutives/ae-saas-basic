@@ -2,20 +2,26 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/ae-saas-basic/ae-saas-basic/internal/models"
+	"github.com/ae-saas-basic/ae-saas-basic/internal/services"
 	"github.com/ae-saas-basic/ae-saas-basic/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 type ContactHandler struct {
-	db *gorm.DB
+	db           *gorm.DB
+	emailService *services.EmailService
 }
 
 // NewContactHandler creates a new contact handler
 func NewContactHandler(db *gorm.DB) *ContactHandler {
-	return &ContactHandler{db: db}
+	return &ContactHandler{
+		db:           db,
+		emailService: services.NewEmailService(),
+	}
 }
 
 // GetContacts retrieves all contacts with pagination
@@ -279,4 +285,153 @@ func (h *ContactHandler) DeleteContact(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, models.SuccessResponse("Contact deleted successfully", nil))
+}
+
+// SubmitContactForm handles contact form submissions
+// @Summary Submit contact form
+// @Description Submit a contact form and optionally subscribe to newsletter
+// @Tags contact
+// @Accept json
+// @Produce json
+// @Param contactForm body models.ContactFormRequest true "Contact form data"
+// @Success 200 {object} models.ContactFormResponse
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /contact/form [post]
+func (h *ContactHandler) SubmitContactForm(c *gin.Context) {
+	var req models.ContactFormRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Set timestamp if not provided
+	if req.Timestamp == "" {
+		req.Timestamp = time.Now().Format(time.RFC3339)
+	}
+
+	// Send email to support
+	err := h.emailService.SendContactFormEmail(
+		req.Name,
+		req.Email,
+		req.Subject,
+		req.Message,
+		req.Timestamp,
+		req.Source,
+	)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send contact form email: " + err.Error()})
+		return
+	}
+
+	response := models.ContactFormResponse{
+		Message: "Contact form submitted successfully",
+	}
+
+	// Handle newsletter subscription if requested
+	if req.Newsletter {
+		newsletter := models.Newsletter{
+			Name:        req.Name,
+			Email:       req.Email,
+			Interest:    req.Subject, // Use subject as interest
+			Source:      req.Source,
+			LastContact: time.Now(),
+		}
+
+		// Check if email already exists in newsletter
+		var existingNewsletter models.Newsletter
+		var count int64
+		h.db.Model(&models.Newsletter{}).Where("email = ?", req.Email).Count(&count)
+
+		if count == 0 {
+			// Create new newsletter subscription
+			if err := h.db.Create(&newsletter).Error; err != nil {
+				// Don't fail the whole request if newsletter signup fails
+				response.NewsletterAdded = false
+				response.NewsletterMessage = "Contact form sent, but newsletter subscription failed"
+			} else {
+				response.NewsletterAdded = true
+				response.NewsletterMessage = "Successfully subscribed to newsletter"
+			}
+		} else {
+			// Update existing subscription
+			result := h.db.Where("email = ?", req.Email).First(&existingNewsletter)
+			if result.Error == nil {
+				existingNewsletter.Name = req.Name
+				existingNewsletter.Interest = req.Subject
+				existingNewsletter.Source = req.Source
+				existingNewsletter.LastContact = time.Now()
+
+				if err := h.db.Save(&existingNewsletter).Error; err != nil {
+					response.NewsletterAdded = false
+					response.NewsletterMessage = "Contact form sent, but newsletter update failed"
+				} else {
+					response.NewsletterAdded = true
+					response.NewsletterMessage = "Newsletter subscription updated"
+				}
+			} else {
+				// Database error
+				response.NewsletterAdded = false
+				response.NewsletterMessage = "Contact form sent, but newsletter subscription failed"
+			}
+		}
+	}
+
+	c.JSON(http.StatusOK, response)
+}
+
+// GetNewsletterSubscriptions gets all newsletter subscriptions (admin only)
+// @Summary Get newsletter subscriptions
+// @Description Get all newsletter subscriptions for admin users
+// @Tags contact
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Newsletter
+// @Failure 500 {object} models.ErrorResponse
+// @Security BearerAuth
+// @Router /contact/newsletter [get]
+func (h *ContactHandler) GetNewsletterSubscriptions(c *gin.Context) {
+	var newsletters []models.Newsletter
+
+	if err := h.db.Find(&newsletters).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch newsletter subscriptions"})
+		return
+	}
+
+	c.JSON(http.StatusOK, newsletters)
+}
+
+// UnsubscribeFromNewsletter handles newsletter unsubscription
+// @Summary Unsubscribe from newsletter
+// @Description Unsubscribe an email from the newsletter
+// @Tags contact
+// @Accept json
+// @Produce json
+// @Param email query string true "Email to unsubscribe"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} models.ErrorResponse
+// @Failure 404 {object} models.ErrorResponse
+// @Failure 500 {object} models.ErrorResponse
+// @Router /contact/newsletter/unsubscribe [delete]
+func (h *ContactHandler) UnsubscribeFromNewsletter(c *gin.Context) {
+	email := c.Query("email")
+	if email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email parameter is required"})
+		return
+	}
+
+	// Soft delete the newsletter subscription
+	result := h.db.Where("email = ?", email).Delete(&models.Newsletter{})
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unsubscribe from newsletter"})
+		return
+	}
+
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Email not found in newsletter subscriptions"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully unsubscribed from newsletter"})
 }

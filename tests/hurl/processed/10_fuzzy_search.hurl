@@ -5,9 +5,9 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "username": "testuser_1760213272_31b81a8d",
-  "email": "test_1760213272_31b81a8d@example.com",
-  "password": "Pass123_31b81a8d",
+  "username": "testuser_1760274274_744bbae1",
+  "email": "test_1760274274_744bbae1@example.com",
+  "password": "Pass123_744bbae1",
   "first_name": "Search",
   "last_name": "Tester",
   "organization_id": 1
@@ -20,8 +20,8 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "username": "testuser_1760213272_31b81a8d",
-  "password": "Pass123_31b81a8d"
+  "username": "testuser_1760274274_744bbae1",
+  "password": "Pass123_744bbae1"
 }
 
 HTTP 200
@@ -34,7 +34,7 @@ POST http://localhost:8080/api/v1/search
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "query": "1760213272_31b81a8d",
+  "query": "1760274274_744bbae1",
   "limit": 10,
   "include_count": true
 }
@@ -46,7 +46,7 @@ jsonpath "$.results" exists
 jsonpath "$.total" exists
 
 # Test 2: Quick search for autocomplete (public endpoint)
-GET http://localhost:8080/api/v1/search/quick?q=testuser_1760213272_31b81a8d&limit=5
+GET http://localhost:8080/api/v1/search/quick?q=testuser_1760274274_744bbae1&limit=5
 
 HTTP 200
 [Asserts]
@@ -75,7 +75,7 @@ POST http://localhost:8080/api/v1/search/entities/customers
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "query": "customer_1760213272_31b81a8d",
+  "query": "customer_1760274274_744bbae1",
   "limit": 10
 }
 
@@ -85,7 +85,7 @@ HTTP *
 status >= 200
 
 # Test 5: Search suggestions
-GET http://localhost:8080/api/v1/search/suggestions?q=testuser_1760213272_31b81a8d&limit=5
+GET http://localhost:8080/api/v1/search/suggestions?q=testuser_1760274274_744bbae1&limit=5
 
 HTTP 200
 [Asserts]
@@ -165,7 +165,7 @@ POST http://localhost:8080/api/v1/search/advanced
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "query": "1760213272_31b81a8d",
+  "query": "1760274274_744bbae1",
   "filters": {
     "entity_types": ["users", "customers"]
   },

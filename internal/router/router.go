@@ -85,6 +85,12 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 			search.GET("/suggestions", fuzzySearchHandler.SearchSuggestions)
 			search.GET("/health", fuzzySearchHandler.HealthCheck)
 		}
+
+		// Public contact form route
+		contact := public.Group("/contact")
+		{
+			contact.POST("/form", contactHandler.SubmitContactForm)
+		}
 	}
 
 	// Protected routes (authentication required)
@@ -117,6 +123,13 @@ func SetupRouter(db *gorm.DB, cfg config.Config) *gin.Engine {
 			contacts.POST("", contactHandler.CreateContact)
 			contacts.PUT("/:id", contactHandler.UpdateContact)
 			contacts.DELETE("/:id", contactHandler.DeleteContact)
+		}
+
+		// Newsletter management routes (protected)
+		newsletter := protected.Group("/contact")
+		{
+			newsletter.GET("/newsletter", contactHandler.GetNewsletterSubscriptions)
+			newsletter.DELETE("/newsletter/unsubscribe", contactHandler.UnsubscribeFromNewsletter)
 		}
 
 		// Email routes

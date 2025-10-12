@@ -2,9 +2,9 @@
 # Tests user registration, login, logout, and token management
 
 # Variables for this test run (automatically generated):
-# testuser_1760213272_31b81a8d - Unique username for this test
-# test_1760213272_31b81a8d@example.com - Unique email for this test  
-# Pass123_31b81a8d - Unique password for this test
+# testuser_1760274274_744bbae1 - Unique username for this test
+# test_1760274274_744bbae1@example.com - Unique email for this test  
+# Pass123_744bbae1 - Unique password for this test
 # http://localhost:8080 - Server host URL
 
 # Test 1: User Login with known existing user (we'll use testuser which should exist)
@@ -28,9 +28,9 @@ auth_token: jsonpath "$.data.token"
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "username": "testuser_1760213272_31b81a8d",
-  "email": "test_1760213272_31b81a8d@example.com",
-  "password": "Pass123_31b81a8d",
+  "username": "testuser_1760274274_744bbae1",
+  "email": "test_1760274274_744bbae1@example.com",
+  "password": "Pass123_744bbae1",
   "first_name": "Test",
   "last_name": "User",
   "organization_id": 1
@@ -53,7 +53,7 @@ jsonpath "$.success" == true
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "username": "testuser_1760213272_31b81a8d",
+  "username": "testuser_1760274274_744bbae1",
   "password": "wrongpassword"
 }
 
@@ -66,8 +66,8 @@ jsonpath "$.message" exists
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "username": "nonexistent_1760213272_31b81a8d",
-  "password": "Pass123_31b81a8d"
+  "username": "nonexistent_1760274274_744bbae1",
+  "password": "Pass123_744bbae1"
 }
 
 HTTP 401
@@ -84,7 +84,7 @@ jsonpath "$.success" == false
 
 # Test 7: Access protected endpoint with invalid token
 GET http://localhost:8080/api/v1/user-settings
-Authorization: Bearer invalid_token_1760213272_31b81a8d
+Authorization: Bearer invalid_token_1760274274_744bbae1
 
 HTTP 401
 [Asserts]
