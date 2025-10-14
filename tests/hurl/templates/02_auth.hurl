@@ -33,7 +33,7 @@ Content-Type: application/json
   "password": "{{UNIQUE_PASSWORD}}",
   "first_name": "Test",
   "last_name": "User",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either success or conflict (user exists)

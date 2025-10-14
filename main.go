@@ -81,8 +81,8 @@ func main() {
 	// Set JWT secret
 	auth.SetJWTSecret(cfg.JWT.Secret)
 
-	// Connect to database
-	db, err := database.Connect(cfg.Database)
+	// Connect to database (create database if it doesn't exist)
+	db, err := database.ConnectWithAutoCreate(cfg.Database)
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
 	}

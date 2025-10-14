@@ -48,7 +48,7 @@ GET http://localhost:8080/static/../../../etc/passwd
 HTTP *
 
 # Test 8: Test non-existent asset
-GET http://localhost:8080/static/css/nonexistent_1760274274_744bbae1.css
+GET http://localhost:8080/static/css/nonexistent_1760454719_29cd8e27.css
 
 # Should return 404 
 HTTP 404

@@ -20,7 +20,7 @@ func NewCustomerHandler(db *gorm.DB) *CustomerHandler {
 
 // GetCustomers retrieves all customers with pagination and tenant isolation
 // @Summary Get all customers
-// @Description Get a paginated list of customers for the authenticated organization
+// @Description Get a paginated list of customers for the authenticated tenant
 // @Tags customers
 // @Produce json
 // @Security BearerAuth
@@ -45,7 +45,7 @@ func (h *CustomerHandler) GetCustomers(c *gin.Context) {
 	var customers []models.Customer
 	var total int64
 
-	query := h.db.Model(&models.Customer{}).Where("organization_id = ?", user.OrganizationID)
+	query := h.db.Model(&models.Customer{}).Where("tenant_id = ?", user.TenantID)
 
 	// Filter by active status if provided
 	if activeStr := c.Query("active"); activeStr != "" {
@@ -63,7 +63,7 @@ func (h *CustomerHandler) GetCustomers(c *gin.Context) {
 	}
 
 	// Get paginated results with preloaded relationships
-	if err := query.Preload("Plan").Preload("Organization").Offset(offset).Limit(limit).Order("created_at DESC").Find(&customers).Error; err != nil {
+	if err := query.Preload("Plan").Preload("Tenant").Offset(offset).Limit(limit).Order("created_at DESC").Find(&customers).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to retrieve customers", err.Error()))
 		return
 	}
@@ -89,7 +89,7 @@ func (h *CustomerHandler) GetCustomers(c *gin.Context) {
 
 // GetCustomer retrieves a specific customer by ID with tenant isolation
 // @Summary Get customer by ID
-// @Description Get a specific customer by its ID within the authenticated organization
+// @Description Get a specific customer by its ID within the authenticated tenant
 // @Tags customers
 // @Produce json
 // @Security BearerAuth
@@ -114,7 +114,7 @@ func (h *CustomerHandler) GetCustomer(c *gin.Context) {
 	}
 
 	var customer models.Customer
-	if err := h.db.Preload("Plan").Preload("Organization").Where("id = ? AND organization_id = ?", id, user.OrganizationID).First(&customer).Error; err != nil {
+	if err := h.db.Preload("Plan").Preload("Tenant").Where("id = ? AND tenant_id = ?", id, user.TenantID).First(&customer).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("Customer not found", "Customer with specified ID does not exist"))
 			return
@@ -128,7 +128,7 @@ func (h *CustomerHandler) GetCustomer(c *gin.Context) {
 
 // CreateCustomer creates a new customer
 // @Summary Create a new customer
-// @Description Create a new customer within the authenticated organization
+// @Description Create a new customer within the authenticated tenant
 // @Tags customers
 // @Accept json
 // @Produce json
@@ -153,7 +153,7 @@ func (h *CustomerHandler) CreateCustomer(c *gin.Context) {
 	}
 
 	// Ensure customer is created within user's organization
-	req.OrganizationID = user.OrganizationID
+	req.TenantID = user.TenantID
 
 	// Verify the plan exists
 	var plan models.Plan
@@ -163,20 +163,20 @@ func (h *CustomerHandler) CreateCustomer(c *gin.Context) {
 	}
 
 	customer := models.Customer{
-		Name:           req.Name,
-		Email:          req.Email,
-		Phone:          req.Phone,
-		Street:         req.Street,
-		Zip:            req.Zip,
-		City:           req.City,
-		Country:        req.Country,
-		TaxID:          req.TaxID,
-		VAT:            req.VAT,
-		PlanID:         req.PlanID,
-		OrganizationID: req.OrganizationID,
-		Status:         "active",
-		PaymentMethod:  req.PaymentMethod,
-		Active:         true,
+		Name:          req.Name,
+		Email:         req.Email,
+		Phone:         req.Phone,
+		Street:        req.Street,
+		Zip:           req.Zip,
+		City:          req.City,
+		Country:       req.Country,
+		TaxID:         req.TaxID,
+		VAT:           req.VAT,
+		PlanID:        req.PlanID,
+		TenantID:      req.TenantID,
+		Status:        "active",
+		PaymentMethod: req.PaymentMethod,
+		Active:        true,
 	}
 
 	if err := h.db.Create(&customer).Error; err != nil {
@@ -185,14 +185,14 @@ func (h *CustomerHandler) CreateCustomer(c *gin.Context) {
 	}
 
 	// Load relationships for response
-	h.db.Preload("Plan").Preload("Organization").First(&customer, customer.ID)
+	h.db.Preload("Plan").Preload("Tenant").First(&customer, customer.ID)
 
 	c.JSON(http.StatusCreated, models.SuccessResponse("Customer created successfully", customer.ToResponse()))
 }
 
 // UpdateCustomer updates an existing customer
 // @Summary Update a customer
-// @Description Update an existing customer by ID within the authenticated organization
+// @Description Update an existing customer by ID within the authenticated tenant
 // @Tags customers
 // @Accept json
 // @Produce json
@@ -225,7 +225,7 @@ func (h *CustomerHandler) UpdateCustomer(c *gin.Context) {
 	}
 
 	var customer models.Customer
-	if err := h.db.Where("id = ? AND organization_id = ?", id, user.OrganizationID).First(&customer).Error; err != nil {
+	if err := h.db.Where("id = ? AND tenant_id = ?", id, user.TenantID).First(&customer).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("Customer not found", "Customer with specified ID does not exist"))
 			return
@@ -287,14 +287,14 @@ func (h *CustomerHandler) UpdateCustomer(c *gin.Context) {
 	}
 
 	// Load relationships for response
-	h.db.Preload("Plan").Preload("Organization").First(&customer, customer.ID)
+	h.db.Preload("Plan").Preload("Tenant").First(&customer, customer.ID)
 
 	c.JSON(http.StatusOK, models.SuccessResponse("Customer updated successfully", customer.ToResponse()))
 }
 
 // DeleteCustomer deletes a customer (soft delete)
 // @Summary Delete a customer
-// @Description Soft delete a customer by ID within the authenticated organization
+// @Description Soft delete a customer by ID within the authenticated tenant
 // @Tags customers
 // @Produce json
 // @Security BearerAuth
@@ -319,7 +319,7 @@ func (h *CustomerHandler) DeleteCustomer(c *gin.Context) {
 	}
 
 	var customer models.Customer
-	if err := h.db.Where("id = ? AND organization_id = ?", id, user.OrganizationID).First(&customer).Error; err != nil {
+	if err := h.db.Where("id = ? AND tenant_id = ?", id, user.TenantID).First(&customer).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("Customer not found", "Customer with specified ID does not exist"))
 			return

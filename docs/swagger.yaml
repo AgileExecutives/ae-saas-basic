@@ -1,5 +1,76 @@
 basePath: /api/v1
 definitions:
+  github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormRequest:
+    description: Contact form submission request
+    properties:
+      email:
+        example: john.doe@example.com
+        type: string
+      message:
+        example: I am interested in learning more about your therapy services.
+        type: string
+      name:
+        example: John Doe
+        type: string
+      newsletter:
+        example: true
+        type: boolean
+      source:
+        example: website
+        type: string
+      subject:
+        example: Inquiry about therapy services
+        type: string
+      timestamp:
+        example: "2025-08-03T10:00:00Z"
+        type: string
+    required:
+    - email
+    - message
+    - name
+    - source
+    - subject
+    type: object
+  github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormResponse:
+    description: Contact form submission response
+    properties:
+      message:
+        example: Contact form submitted successfully
+        type: string
+      newsletterAdded:
+        example: true
+        type: boolean
+      newsletterMessage:
+        example: Successfully subscribed to newsletter
+        type: string
+    type: object
+  github_com_ae-saas-basic_ae-saas-basic_internal_models.Newsletter:
+    properties:
+      createdAt:
+        example: "2025-08-03T10:00:00Z"
+        type: string
+      email:
+        example: john.doe@example.com
+        type: string
+      id:
+        example: 1
+        type: integer
+      interest:
+        example: mental_health
+        type: string
+      lastContact:
+        example: "2025-08-03T10:00:00Z"
+        type: string
+      name:
+        example: John Doe
+        type: string
+      source:
+        example: website
+        type: string
+      updatedAt:
+        example: "2025-08-03T10:00:00Z"
+        type: string
+    type: object
   models.APIResponse:
     properties:
       data: {}
@@ -106,8 +177,6 @@ definitions:
         type: string
       name:
         type: string
-      organization_id:
-        type: integer
       payment_method:
         type: string
       phone:
@@ -118,6 +187,8 @@ definitions:
         type: string
       tax_id:
         type: string
+      tenant_id:
+        type: integer
       vat:
         type: string
       zip:
@@ -125,8 +196,8 @@ definitions:
     required:
     - email
     - name
-    - organization_id
     - plan_id
+    - tenant_id
     type: object
   models.CustomerResponse:
     properties:
@@ -144,10 +215,6 @@ definitions:
         type: integer
       name:
         type: string
-      organization:
-        $ref: '#/definitions/models.OrganizationResponse'
-      organization_id:
-        type: integer
       payment_method:
         type: string
       phone:
@@ -162,6 +229,10 @@ definitions:
         type: string
       tax_id:
         type: string
+      tenant:
+        $ref: '#/definitions/models.TenantResponse'
+      tenant_id:
+        type: integer
       vat:
         type: string
       zip:
@@ -278,15 +349,6 @@ definitions:
       user:
         $ref: '#/definitions/models.UserResponse'
     type: object
-  models.OrganizationResponse:
-    properties:
-      id:
-        type: integer
-      name:
-        type: string
-      slug:
-        type: string
-    type: object
   models.PaginationResponse:
     properties:
       limit:
@@ -373,6 +435,17 @@ definitions:
       price:
         type: number
     type: object
+  models.TenantResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      slug:
+        type: string
+    type: object
   models.UserCreateRequest:
     properties:
       email:
@@ -381,21 +454,21 @@ definitions:
         type: string
       last_name:
         type: string
-      organization_id:
-        type: integer
       password:
         minLength: 8
         type: string
       role:
         type: string
+      tenant_id:
+        type: integer
       username:
         type: string
     required:
     - email
     - first_name
     - last_name
-    - organization_id
     - password
+    - tenant_id
     - username
     type: object
   models.UserResponse:
@@ -412,12 +485,12 @@ definitions:
         type: integer
       last_name:
         type: string
-      organization:
-        $ref: '#/definitions/models.OrganizationResponse'
-      organization_id:
-        type: integer
       role:
         type: string
+      tenant:
+        $ref: '#/definitions/models.TenantResponse'
+      tenant_id:
+        type: integer
       username:
         type: string
     type: object
@@ -665,6 +738,94 @@ paths:
       summary: Register new user
       tags:
       - auth
+  /contact/form:
+    post:
+      consumes:
+      - application/json
+      description: Submit a contact form and optionally subscribe to newsletter
+      parameters:
+      - description: Contact form data
+        in: body
+        name: contactForm
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Submit contact form
+      tags:
+      - contact
+  /contact/newsletter:
+    get:
+      consumes:
+      - application/json
+      description: Get all newsletter subscriptions for admin users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_ae-saas-basic_ae-saas-basic_internal_models.Newsletter'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get newsletter subscriptions
+      tags:
+      - contact
+  /contact/newsletter/unsubscribe:
+    delete:
+      consumes:
+      - application/json
+      description: Unsubscribe an email from the newsletter
+      parameters:
+      - description: Email to unsubscribe
+        in: query
+        name: email
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Unsubscribe from newsletter
+      tags:
+      - contact
   /contacts:
     get:
       description: Get a paginated list of all contacts
@@ -845,7 +1006,7 @@ paths:
       - contacts
   /customers:
     get:
-      description: Get a paginated list of customers for the authenticated organization
+      description: Get a paginated list of customers for the authenticated tenant
       parameters:
       - default: 1
         description: Page number
@@ -885,7 +1046,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new customer within the authenticated organization
+      description: Create a new customer within the authenticated tenant
       parameters:
       - description: Customer creation data
         in: body
@@ -916,7 +1077,7 @@ paths:
       - customers
   /customers/{id}:
     delete:
-      description: Soft delete a customer by ID within the authenticated organization
+      description: Soft delete a customer by ID within the authenticated tenant
       parameters:
       - description: Customer ID
         in: path
@@ -944,7 +1105,7 @@ paths:
       tags:
       - customers
     get:
-      description: Get a specific customer by its ID within the authenticated organization
+      description: Get a specific customer by its ID within the authenticated tenant
       parameters:
       - description: Customer ID
         in: path
@@ -979,7 +1140,7 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update an existing customer by ID within the authenticated organization
+      description: Update an existing customer by ID within the authenticated tenant
       parameters:
       - description: Customer ID
         in: path

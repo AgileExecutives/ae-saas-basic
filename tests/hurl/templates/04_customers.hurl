@@ -10,7 +10,7 @@ Content-Type: application/json
   "password": "{{UNIQUE_PASSWORD}}",
   "first_name": "Customer",
   "last_name": "Tester",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either success or conflict (user exists)
@@ -37,7 +37,7 @@ Content-Type: application/json
   "email": "{{UNIQUE_EMAIL}}",
   "phone": "+1-555-123456",
   "address": "123 Test Street, Test City, TC 12345",
-  "organization_id": 1,
+  "tenant_id": 1,
   "plan_id": 1
 }
 

@@ -10,7 +10,7 @@ Content-Type: application/json
   "password": "{{UNIQUE_PASSWORD}}",
   "first_name": "Email",
   "last_name": "Tester",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either success or conflict (user exists)

@@ -64,10 +64,10 @@ type JoinConfig struct {
 
 // PermissionConfig defines access control for search
 type PermissionConfig struct {
-	RequireAuth       bool     `json:"require_auth"`
-	AllowedRoles      []string `json:"allowed_roles"`
-	OwnershipField    string   `json:"ownership_field"`
-	OrganizationField string   `json:"organization_field"`
+	RequireAuth    bool     `json:"require_auth"`
+	AllowedRoles   []string `json:"allowed_roles"`
+	OwnershipField string   `json:"ownership_field"`
+	TenantField    string   `json:"organization_field"`
 }
 
 // SearchResult represents a single search result
@@ -106,7 +106,7 @@ type SearchOptions struct {
 	Offset              int                    `json:"offset"`
 	Limit               int                    `json:"limit"`
 	UserID              *uint                  `json:"user_id,omitempty"`
-	OrganizationID      *uint                  `json:"organization_id,omitempty"`
+	TenantID            *uint                  `json:"tenant_id,omitempty"`
 	IncludeCount        bool                   `json:"include_count"`
 	IncludeAggregations bool                   `json:"include_aggregations"`
 	HighlightFields     []string               `json:"highlight_fields,omitempty"`
@@ -166,8 +166,8 @@ func (s *FuzzySearchService) RegisterDefaultEntities() {
 		WhereClause:  "active = true",
 		OrderBy:      "first_name, last_name",
 		Permissions: PermissionConfig{
-			RequireAuth:       true,
-			OrganizationField: "organization_id",
+			RequireAuth: true,
+			TenantField: "organization_id",
 		},
 	})
 
@@ -184,8 +184,8 @@ func (s *FuzzySearchService) RegisterDefaultEntities() {
 		SelectFields: []string{"id", "name", "email", "phone", "company", "created_at"},
 		OrderBy:      "name",
 		Permissions: PermissionConfig{
-			RequireAuth:       true,
-			OrganizationField: "organization_id",
+			RequireAuth: true,
+			TenantField: "organization_id",
 		},
 	})
 
@@ -202,8 +202,8 @@ func (s *FuzzySearchService) RegisterDefaultEntities() {
 		SelectFields: []string{"id", "name", "email", "phone", "subject", "created_at"},
 		OrderBy:      "created_at DESC",
 		Permissions: PermissionConfig{
-			RequireAuth:       true,
-			OrganizationField: "organization_id",
+			RequireAuth: true,
+			TenantField: "organization_id",
 		},
 	})
 
@@ -237,8 +237,8 @@ func (s *FuzzySearchService) RegisterDefaultEntities() {
 		SelectFields: []string{"id", "subject", "to_email", "from_email", "status", "sent_at"},
 		OrderBy:      "sent_at DESC",
 		Permissions: PermissionConfig{
-			RequireAuth:       true,
-			OrganizationField: "organization_id",
+			RequireAuth: true,
+			TenantField: "organization_id",
 		},
 	})
 }
@@ -339,8 +339,8 @@ func (s *FuzzySearchService) searchEntity(entityType string, config EntityConfig
 	}
 
 	// Apply organization filtering
-	if options.OrganizationID != nil && config.Permissions.OrganizationField != "" {
-		query = query.Where(config.Permissions.OrganizationField+" = ?", *options.OrganizationID)
+	if options.TenantID != nil && config.Permissions.TenantField != "" {
+		query = query.Where(config.Permissions.TenantField+" = ?", *options.TenantID)
 	}
 
 	// Apply user ownership filtering

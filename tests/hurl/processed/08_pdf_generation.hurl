@@ -5,12 +5,12 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "username": "testuser_1760274274_744bbae1",
-  "email": "test_1760274274_744bbae1@example.com",
-  "password": "Pass123_744bbae1",
+  "username": "testuser_1760454719_29cd8e27",
+  "email": "test_1760454719_29cd8e27@example.com",
+  "password": "Pass123_29cd8e27",
   "first_name": "PDF",
   "last_name": "Tester",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either success or conflict (user exists)
@@ -20,14 +20,14 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "username": "testuser_1760274274_744bbae1",
-  "password": "Pass123_744bbae1"
+  "username": "testuser_1760454719_29cd8e27",
+  "password": "Pass123_29cd8e27"
 }
 
 HTTP 200
 [Captures]
 auth_token: jsonpath "$.data.token"
-user_org_id: jsonpath "$.data.user.organization_id"
+user_tenant_id: jsonpath "$.data.user.tenant_id"
 
 # Test 1: Get PDF configuration
 GET http://localhost:8080/api/v1/pdf/config
@@ -53,7 +53,7 @@ POST http://localhost:8080/api/v1/pdf/generate/html
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "html": "<html><body><h1>Test PDF 1760274274_744bbae1</h1><p>Generated for user: testuser_1760274274_744bbae1</p><p>Email: test_1760274274_744bbae1@example.com</p></body></html>",
+  "html": "<html><body><h1>Test PDF 1760454719_29cd8e27</h1><p>Generated for user: testuser_1760454719_29cd8e27</p><p>Email: test_1760454719_29cd8e27@example.com</p></body></html>",
   "config": {
     "page_size": "A4",
     "orientation": "portrait",
@@ -76,11 +76,11 @@ Content-Type: application/json
 {
   "template": "report",
   "data": {
-    "invoice_number": "INV-1760274274_744bbae1",
-    "customer_name": "customer_1760274274_744bbae1",
+    "invoice_number": "INV-1760454719_29cd8e27",
+    "customer_name": "customer_1760454719_29cd8e27",
     "amount": "€123.45",
     "date": "2025-10-11",
-    "unique_id": "1760274274_744bbae1"
+    "unique_id": "1760454719_29cd8e27"
   },
   "save": true
 }
@@ -97,7 +97,7 @@ Content-Type: application/json
 {
   "template": "report",
   "data": {
-    "title": "Stream Test 1760274274_744bbae1",
+    "title": "Stream Test 1760454719_29cd8e27",
     "content": "PDF streaming test"
   }
 }
@@ -118,7 +118,7 @@ POST http://localhost:8080/api/v1/pdf/generate/html
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "html": "<invalid><html><broken>1760274274_744bbae1",
+  "html": "<invalid><html><broken>1760454719_29cd8e27",
   "save": false
 }
 
@@ -139,7 +139,7 @@ POST http://localhost:8080/api/v1/pdf/generate/html
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "html": "<html><head><title>Custom PDF 1760274274_744bbae1</title></head><body><h1>Custom Options Test</h1><p>Test ID: 1760274274_744bbae1</p></body></html>",
+  "html": "<html><head><title>Custom PDF 1760454719_29cd8e27</title></head><body><h1>Custom Options Test</h1><p>Test ID: 1760454719_29cd8e27</p></body></html>",
   "config": {
     "page_size": "A3",
     "orientation": "landscape",

@@ -5,12 +5,12 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "username": "testuser_1760274274_744bbae1",
-  "email": "test_1760274274_744bbae1@example.com",
-  "password": "Pass123_744bbae1",
+  "username": "testuser_1760454719_29cd8e27",
+  "email": "test_1760454719_29cd8e27@example.com",
+  "password": "Pass123_29cd8e27",
   "first_name": "Settings",
   "last_name": "Tester",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either success or conflict (user exists)
@@ -20,8 +20,8 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "username": "testuser_1760274274_744bbae1",
-  "password": "Pass123_744bbae1"
+  "username": "testuser_1760454719_29cd8e27",
+  "password": "Pass123_29cd8e27"
 }
 
 HTTP 200
@@ -49,7 +49,7 @@ Content-Type: application/json
   "language": "de",
   "timezone": "Europe/Berlin",
   "theme": "dark",
-  "settings": "{\"email_notifications\": true, \"push_notifications\": false, \"unique_preference\": \"1760274274_744bbae1\"}"
+  "settings": "{\"email_notifications\": true, \"push_notifications\": false, \"unique_preference\": \"1760454719_29cd8e27\"}"
 }
 
 HTTP 200
@@ -90,7 +90,7 @@ PUT http://localhost:8080/api/v1/user-settings
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "language": "invalid_language_code_1760274274_744bbae1"
+  "language": "invalid_language_code_1760454719_29cd8e27"
 }
 
 # Accept various status codes as validation rules may vary

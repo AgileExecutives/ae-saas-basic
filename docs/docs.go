@@ -351,6 +351,142 @@ const docTemplate = `{
                 }
             }
         },
+        "/contact/form": {
+            "post": {
+                "description": "Submit a contact form and optionally subscribe to newsletter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contact"
+                ],
+                "summary": "Submit contact form",
+                "parameters": [
+                    {
+                        "description": "Contact form data",
+                        "name": "contactForm",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/contact/newsletter": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get all newsletter subscriptions for admin users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contact"
+                ],
+                "summary": "Get newsletter subscriptions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_ae-saas-basic_ae-saas-basic_internal_models.Newsletter"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/contact/newsletter/unsubscribe": {
+            "delete": {
+                "description": "Unsubscribe an email from the newsletter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contact"
+                ],
+                "summary": "Unsubscribe from newsletter",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Email to unsubscribe",
+                        "name": "email",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/contacts": {
             "get": {
                 "security": [
@@ -654,7 +790,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get a paginated list of customers for the authenticated organization",
+                "description": "Get a paginated list of customers for the authenticated tenant",
                 "produces": [
                     "application/json"
                 ],
@@ -717,7 +853,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new customer within the authenticated organization",
+                "description": "Create a new customer within the authenticated tenant",
                 "consumes": [
                     "application/json"
                 ],
@@ -774,7 +910,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get a specific customer by its ID within the authenticated organization",
+                "description": "Get a specific customer by its ID within the authenticated tenant",
                 "produces": [
                     "application/json"
                 ],
@@ -830,7 +966,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update an existing customer by ID within the authenticated organization",
+                "description": "Update an existing customer by ID within the authenticated tenant",
                 "consumes": [
                     "application/json"
                 ],
@@ -898,7 +1034,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Soft delete a customer by ID within the authenticated organization",
+                "description": "Soft delete a customer by ID within the authenticated tenant",
                 "produces": [
                     "application/json"
                 ],
@@ -1723,6 +1859,102 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormRequest": {
+            "description": "Contact form submission request",
+            "type": "object",
+            "required": [
+                "email",
+                "message",
+                "name",
+                "source",
+                "subject"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "I am interested in learning more about your therapy services."
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "newsletter": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "source": {
+                    "type": "string",
+                    "example": "website"
+                },
+                "subject": {
+                    "type": "string",
+                    "example": "Inquiry about therapy services"
+                },
+                "timestamp": {
+                    "type": "string",
+                    "example": "2025-08-03T10:00:00Z"
+                }
+            }
+        },
+        "github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormResponse": {
+            "description": "Contact form submission response",
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Contact form submitted successfully"
+                },
+                "newsletterAdded": {
+                    "type": "boolean",
+                    "example": true
+                },
+                "newsletterMessage": {
+                    "type": "string",
+                    "example": "Successfully subscribed to newsletter"
+                }
+            }
+        },
+        "github_com_ae-saas-basic_ae-saas-basic_internal_models.Newsletter": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string",
+                    "example": "2025-08-03T10:00:00Z"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "interest": {
+                    "type": "string",
+                    "example": "mental_health"
+                },
+                "lastContact": {
+                    "type": "string",
+                    "example": "2025-08-03T10:00:00Z"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "John Doe"
+                },
+                "source": {
+                    "type": "string",
+                    "example": "website"
+                },
+                "updatedAt": {
+                    "type": "string",
+                    "example": "2025-08-03T10:00:00Z"
+                }
+            }
+        },
         "models.APIResponse": {
             "type": "object",
             "properties": {
@@ -1873,8 +2105,8 @@ const docTemplate = `{
             "required": [
                 "email",
                 "name",
-                "organization_id",
-                "plan_id"
+                "plan_id",
+                "tenant_id"
             ],
             "properties": {
                 "city": {
@@ -1888,9 +2120,6 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
-                },
-                "organization_id": {
-                    "type": "integer"
                 },
                 "payment_method": {
                     "type": "string"
@@ -1906,6 +2135,9 @@ const docTemplate = `{
                 },
                 "tax_id": {
                     "type": "string"
+                },
+                "tenant_id": {
+                    "type": "integer"
                 },
                 "vat": {
                     "type": "string"
@@ -1939,12 +2171,6 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "organization": {
-                    "$ref": "#/definitions/models.OrganizationResponse"
-                },
-                "organization_id": {
-                    "type": "integer"
-                },
                 "payment_method": {
                     "type": "string"
                 },
@@ -1965,6 +2191,12 @@ const docTemplate = `{
                 },
                 "tax_id": {
                     "type": "string"
+                },
+                "tenant": {
+                    "$ref": "#/definitions/models.TenantResponse"
+                },
+                "tenant_id": {
+                    "type": "integer"
                 },
                 "vat": {
                     "type": "string"
@@ -2142,20 +2374,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.OrganizationResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                }
-            }
-        },
         "models.PaginationResponse": {
             "type": "object",
             "properties": {
@@ -2286,14 +2504,31 @@ const docTemplate = `{
                 }
             }
         },
+        "models.TenantResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UserCreateRequest": {
             "type": "object",
             "required": [
                 "email",
                 "first_name",
                 "last_name",
-                "organization_id",
                 "password",
+                "tenant_id",
                 "username"
             ],
             "properties": {
@@ -2306,15 +2541,15 @@ const docTemplate = `{
                 "last_name": {
                     "type": "string"
                 },
-                "organization_id": {
-                    "type": "integer"
-                },
                 "password": {
                     "type": "string",
                     "minLength": 8
                 },
                 "role": {
                     "type": "string"
+                },
+                "tenant_id": {
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"
@@ -2342,14 +2577,14 @@ const docTemplate = `{
                 "last_name": {
                     "type": "string"
                 },
-                "organization": {
-                    "$ref": "#/definitions/models.OrganizationResponse"
-                },
-                "organization_id": {
-                    "type": "integer"
-                },
                 "role": {
                     "type": "string"
+                },
+                "tenant": {
+                    "$ref": "#/definitions/models.TenantResponse"
+                },
+                "tenant_id": {
+                    "type": "integer"
                 },
                 "username": {
                     "type": "string"

@@ -10,7 +10,7 @@ Content-Type: application/json
   "password": "{{UNIQUE_PASSWORD}}",
   "first_name": "PDF",
   "last_name": "Tester",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either success or conflict (user exists)
@@ -27,7 +27,7 @@ Content-Type: application/json
 HTTP 200
 [Captures]
 auth_token: jsonpath "$.data.token"
-user_org_id: jsonpath "$.data.user.organization_id"
+user_tenant_id: jsonpath "$.data.user.tenant_id"
 
 # Test 1: Get PDF configuration
 GET {{HOST}}/api/v1/pdf/config

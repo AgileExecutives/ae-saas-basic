@@ -9,20 +9,20 @@ import (
 
 // JWTClaims represents the JWT claims
 type JWTClaims struct {
-	UserID         uint   `json:"user_id"`
-	OrganizationID uint   `json:"organization_id"`
-	Role           string `json:"role"`
+	UserID   uint   `json:"user_id"`
+	TenantID uint   `json:"tenant_id"`
+	Role     string `json:"role"`
 	jwt.RegisteredClaims
 }
 
 var jwtSecret = []byte("your-secret-key") // TODO: Move to config
 
 // GenerateJWT generates a JWT token for the user
-func GenerateJWT(userID, organizationID uint, role string) (string, error) {
+func GenerateJWT(userID, tenantID uint, role string) (string, error) {
 	claims := JWTClaims{
-		UserID:         userID,
-		OrganizationID: organizationID,
-		Role:           role,
+		UserID:   userID,
+		TenantID: tenantID,
+		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ID:        fmt.Sprintf("%d_%d", userID, time.Now().Unix()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),

@@ -12,7 +12,7 @@ Content-Type: application/json
 HTTP 200
 [Captures]
 auth_token: jsonpath "$.data.token"
-user_org_id: jsonpath "$.data.user.organization_id"
+user_tenant_id: jsonpath "$.data.user.tenant_id"
 
 # Test creating a customer
 POST {{host}}/api/v1/customers
@@ -40,7 +40,7 @@ jsonpath "$.message" == "Customer created successfully"
 jsonpath "$.data.name" == "Test Customer Inc"
 jsonpath "$.data.email" == "customer@testcorp.com"
 jsonpath "$.data.plan_id" == 1
-jsonpath "$.data.organization_id" == {{user_org_id}}
+jsonpath "$.data.tenant_id" == {{user_tenant_id}}
 jsonpath "$.data.status" == "active"
 jsonpath "$.data.active" == true
 
@@ -70,7 +70,7 @@ HTTP 200
 [Asserts]
 jsonpath "$.success" == true
 jsonpath "$.data" isCollection
-jsonpath "$.data[0].organization_id" == {{user_org_id}}
+jsonpath "$.data[0].tenant_id" == {{user_tenant_id}}
 jsonpath "$.pagination.page" == 1
 
 # Test getting customers with filters
@@ -102,7 +102,7 @@ jsonpath "$.success" == true
 jsonpath "$.data.id" == {{customer_id}}
 jsonpath "$.data.name" == "Test Customer Inc"
 jsonpath "$.data.email" == "customer@testcorp.com"
-jsonpath "$.data.organization_id" == {{user_org_id}}
+jsonpath "$.data.tenant_id" == {{user_tenant_id}}
 
 # Test getting non-existent customer
 GET {{host}}/api/v1/customers/999

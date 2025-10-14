@@ -18,7 +18,7 @@ Content-Type: application/json
   "password": "{{UNIQUE_PASSWORD}}",
   "first_name": "Integration",
   "last_name": "Test",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 HTTP 201

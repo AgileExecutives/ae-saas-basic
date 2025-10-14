@@ -39,7 +39,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	var user models.User
 	// Find user by username or email
-	if err := h.db.Preload("Organization").Where("username = ? OR email = ?", req.Username, req.Username).First(&user).Error; err != nil {
+	if err := h.db.Where("username = ? OR email = ?", req.Username, req.Username).First(&user).Error; err != nil {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Invalid credentials", "User not found"))
 		return
 	}
@@ -57,7 +57,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	}
 
 	// Generate JWT token
-	token, err := auth.GenerateJWT(user.ID, user.OrganizationID, user.Role)
+	token, err := auth.GenerateJWT(user.ID, user.TenantID, user.Role)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to generate token", err.Error()))
 		return
@@ -147,10 +147,10 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// Check if organization exists
-	var org models.Organization
-	if err := h.db.First(&org, req.OrganizationID).Error; err != nil {
-		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Organization not found", "Invalid organization ID"))
+	// Check if tenant exists
+	var tenant models.Tenant
+	if err := h.db.First(&tenant, req.TenantID).Error; err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Tenant not found", "Invalid tenant ID"))
 		return
 	}
 
@@ -168,14 +168,14 @@ func (h *AuthHandler) Register(c *gin.Context) {
 
 	// Create user
 	user := models.User{
-		Username:       req.Username,
-		Email:          req.Email,
-		PasswordHash:   string(hashedPassword),
-		FirstName:      req.FirstName,
-		LastName:       req.LastName,
-		Role:           req.Role,
-		OrganizationID: req.OrganizationID,
-		Active:         true,
+		Username:     req.Username,
+		Email:        req.Email,
+		PasswordHash: string(hashedPassword),
+		FirstName:    req.FirstName,
+		LastName:     req.LastName,
+		Role:         req.Role,
+		TenantID:     req.TenantID,
+		Active:       true,
 	}
 
 	if err := h.db.Create(&user).Error; err != nil {
@@ -183,8 +183,8 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// Load organization for response
-	h.db.Preload("Organization").First(&user, user.ID)
+	// Load tenant for response
+	h.db.Preload("Tenant").First(&user, user.ID)
 
 	c.JSON(http.StatusCreated, models.SuccessResponse("User created successfully", user.ToResponse()))
 }
@@ -263,8 +263,8 @@ func (h *AuthHandler) Me(c *gin.Context) {
 
 	user := userInterface.(*models.User)
 
-	// Preload organization
-	h.db.Preload("Organization").First(user, user.ID)
+	// Preload tenant
+	h.db.Preload("Tenant").First(user, user.ID)
 
 	c.JSON(http.StatusOK, models.SuccessResponse("User retrieved successfully", user.ToResponse()))
 }

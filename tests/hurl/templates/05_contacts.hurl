@@ -10,7 +10,7 @@ Content-Type: application/json
   "password": "{{UNIQUE_PASSWORD}}",
   "first_name": "Contact",
   "last_name": "Tester",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either success or conflict (user exists)
@@ -43,7 +43,7 @@ Content-Type: application/json
   "city": "Contact City",
   "country": "US",
   "type": "business",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 HTTP 201

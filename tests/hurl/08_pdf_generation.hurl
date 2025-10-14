@@ -12,7 +12,7 @@ Content-Type: application/json
 HTTP 200
 [Captures]
 auth_token: jsonpath "$.data.token"
-user_org_id: jsonpath "$.data.user.organization_id"
+user_tenant_id: jsonpath "$.data.user.tenant_id"
 
 # Test getting PDF configuration
 GET {{host}}/api/v1/pdf/config

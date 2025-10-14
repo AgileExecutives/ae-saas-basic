@@ -48,7 +48,7 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 
 		// Get user from database
 		var user models.User
-		if err := db.Preload("Organization").First(&user, claims.UserID).Error; err != nil {
+		if err := db.Preload("Tenant").First(&user, claims.UserID).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("User not found", "User associated with token not found"))
 			c.Abort()
 			return
@@ -61,9 +61,9 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		// Verify organization matches token
-		if user.OrganizationID != claims.OrganizationID {
-			c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Organization mismatch", "User organization does not match token"))
+		// Verify tenant matches token
+		if user.TenantID != claims.TenantID {
+			c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Tenant mismatch", "User tenant does not match token"))
 			c.Abort()
 			return
 		}
@@ -124,7 +124,7 @@ func TenantIsolation() gin.HandlerFunc {
 		}
 
 		user := userInterface.(*models.User)
-		c.Set("organization_id", user.OrganizationID)
+		c.Set("tenant_id", user.TenantID)
 
 		c.Next()
 	}

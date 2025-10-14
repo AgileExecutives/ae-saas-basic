@@ -10,7 +10,7 @@ Content-Type: application/json
   "password": "testpass123",
   "first_name": "Test",
   "last_name": "User",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 HTTP 201
@@ -27,7 +27,7 @@ jsonpath "$.data.active" == true
 # Capture user info for later tests
 [Captures]
 user_id: jsonpath "$.data.id"
-organization_id: jsonpath "$.data.organization_id"
+tenant_id: jsonpath "$.data.tenant_id"
 
 # Test login with correct credentials
 POST {{host}}/api/v1/auth/login

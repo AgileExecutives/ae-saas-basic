@@ -7,10 +7,10 @@ This document describes the complete database schema for the AE SaaS Basic modul
 ### Database Overview
 
 The AE SaaS Basic module implements a **multi-tenant architecture** with the following core entities:
-- **Organizations** - Tenant separation
+- **Tenants** - Tenant separation
 - **Users** - User accounts with role-based access
 - **Plans** - Subscription plans and pricing
-- **Customers** - Billing entities linked to organizations
+- **Customers** - Billing entities linked to tenants
 - **Contacts** - Generic contact management
 - **Emails** - Transactional email tracking
 - **User Settings** - User preferences and configuration
@@ -21,12 +21,12 @@ The AE SaaS Basic module implements a **multi-tenant architecture** with the fol
 ```mermaid
 erDiagram
     %% Core Tenant Entity
-    ORGANIZATIONS {
+    TENANTS {
         uint id PK "Primary Key"
         timestamp created_at "Creation timestamp"
         timestamp updated_at "Last update timestamp"
         timestamp deleted_at "Soft delete timestamp (nullable)"
-        string name "Organization name (unique)"
+        string name "Tenant name (unique)"
         string slug "URL-friendly identifier (unique)"
     }
 
@@ -60,7 +60,7 @@ erDiagram
         string first_name "First name"
         string last_name "Last name"
         string role "User role (default: user)"
-        uint organization_id FK "Organization reference"
+        uint tenant_id FK "Tenant reference"
         boolean active "Account active status (default: true)"
     }
 
@@ -80,7 +80,7 @@ erDiagram
         string tax_id "Tax ID (nullable)"
         string vat "VAT number (nullable)"
         uint plan_id FK "Plan reference"
-        uint organization_id FK "Organization reference"
+        uint tenant_id FK "Tenant reference"
         string status "Customer status (default: active)"
         string payment_method "Payment method (nullable)"
         boolean active "Customer active status (default: true)"
@@ -150,8 +150,8 @@ erDiagram
     }
 
     %% Relationships
-    ORGANIZATIONS ||--o{ USERS : "has many users"
-    ORGANIZATIONS ||--o{ CUSTOMERS : "has many customers"
+    TENANTS ||--o{ USERS : "has many users"
+    TENANTS ||--o{ CUSTOMERS : "has many customers"
     
     PLANS ||--o{ CUSTOMERS : "subscribed by many customers"
     
@@ -164,8 +164,8 @@ erDiagram
 ### Database Design Principles
 
 #### 1. Multi-Tenant Architecture
-- **Organizations** serve as the primary tenant separator
-- All tenant-specific data references `organization_id`
+- **Tenants** serve as the primary tenant separator
+- All tenant-specific data references `tenant_id`
 - Data isolation enforced at application and database level
 
 #### 2. Soft Deletes
@@ -187,11 +187,11 @@ erDiagram
 
 #### Foreign Key Relationships
 ```sql
--- User belongs to Organization
-FOREIGN KEY (organization_id) REFERENCES organizations(id)
+-- User belongs to Tenant
+FOREIGN KEY (tenant_id) REFERENCES tenants(id)
 
--- Customer belongs to Organization and Plan
-FOREIGN KEY (organization_id) REFERENCES organizations(id)
+-- Customer belongs to Tenant and Plan
+FOREIGN KEY (tenant_id) REFERENCES tenants(id)
 FOREIGN KEY (plan_id) REFERENCES plans(id)
 
 -- User Settings belongs to User (1:1)
@@ -203,7 +203,7 @@ FOREIGN KEY (user_id) REFERENCES users(id)
 
 #### Unique Constraints
 ```sql
--- Organizations
+-- Tenants
 UNIQUE (name)
 UNIQUE (slug)
 
@@ -226,19 +226,19 @@ UNIQUE (token_id) -- Prevent duplicate token entries
 -- Soft delete indexes (all tables)
 CREATE INDEX idx_{table}_deleted_at ON {table}(deleted_at);
 
--- Organization indexes
-CREATE INDEX idx_organizations_slug ON organizations(slug);
+-- Tenant indexes
+CREATE INDEX idx_tenants_slug ON tenants(slug);
 
 -- User indexes
 CREATE INDEX idx_users_username ON users(username);
 CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_organization_id ON users(organization_id);
+CREATE INDEX idx_users_tenant_id ON users(tenant_id);
 CREATE INDEX idx_users_active ON users(active);
 
 -- Customer indexes
 CREATE INDEX idx_customers_email ON customers(email);
 CREATE INDEX idx_customers_plan_id ON customers(plan_id);
-CREATE INDEX idx_customers_organization_id ON customers(organization_id);
+CREATE INDEX idx_customers_tenant_id ON customers(tenant_id);
 CREATE INDEX idx_customers_status ON customers(status);
 
 -- Plan indexes
@@ -293,16 +293,16 @@ CREATE INDEX idx_token_blacklist_expires_at ON token_blacklist(expires_at);
 - Token IDs are UUIDs for uniqueness
 
 #### 3. Multi-Tenant Data Isolation
-- All queries filtered by `organization_id`
+- All queries filtered by `tenant_id`
 - Database-level constraints prevent cross-tenant data access
 - Application middleware enforces tenant boundaries
 
 ### Migration Strategy
 
 #### Initial Setup
-1. Create organizations table first (no dependencies)
+1. Create tenants table first (no dependencies)
 2. Create plans table (independent)
-3. Create users table (depends on organizations)
+3. Create users table (depends on tenants)
 4. Create remaining tables in dependency order
 
 #### Production Migrations
@@ -313,7 +313,7 @@ CREATE INDEX idx_token_blacklist_expires_at ON token_blacklist(expires_at);
 ### Performance Recommendations
 
 #### 1. Query Optimization
-- Always include `organization_id` in WHERE clauses
+- Always include `tenant_id` in WHERE clauses
 - Use appropriate indexes for frequent queries
 - Monitor slow query logs
 
@@ -335,7 +335,7 @@ This schema can be extended for domain-specific applications:
 CREATE TABLE clients (
     id SERIAL PRIMARY KEY,
     contact_id INTEGER REFERENCES contacts(id),
-    organization_id INTEGER REFERENCES organizations(id),
+    tenant_id INTEGER REFERENCES tenants(id),
     -- therapy-specific fields
 );
 ```
@@ -345,7 +345,7 @@ CREATE TABLE clients (
 -- Extend with product/order tables
 CREATE TABLE products (
     id SERIAL PRIMARY KEY,
-    organization_id INTEGER REFERENCES organizations(id),
+    tenant_id INTEGER REFERENCES tenants(id),
     -- product-specific fields
 );
 ```

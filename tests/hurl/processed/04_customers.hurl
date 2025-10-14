@@ -5,12 +5,12 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "username": "testuser_1760274274_744bbae1",
-  "email": "test_1760274274_744bbae1@example.com",
-  "password": "Pass123_744bbae1",
+  "username": "testuser_1760454719_29cd8e27",
+  "email": "test_1760454719_29cd8e27@example.com",
+  "password": "Pass123_29cd8e27",
   "first_name": "Customer",
   "last_name": "Tester",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either success or conflict (user exists)
@@ -20,8 +20,8 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "username": "testuser_1760274274_744bbae1",
-  "password": "Pass123_744bbae1"
+  "username": "testuser_1760454719_29cd8e27",
+  "password": "Pass123_29cd8e27"
 }
 
 HTTP 200
@@ -33,19 +33,19 @@ POST http://localhost:8080/api/v1/customers
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "name": "customer_1760274274_744bbae1 Corp",
-  "email": "test_1760274274_744bbae1@example.com",
+  "name": "customer_1760454719_29cd8e27 Corp",
+  "email": "test_1760454719_29cd8e27@example.com",
   "phone": "+1-555-123456",
   "address": "123 Test Street, Test City, TC 12345",
-  "organization_id": 1,
+  "tenant_id": 1,
   "plan_id": 1
 }
 
 HTTP 201
 [Asserts]
 jsonpath "$.success" == true
-jsonpath "$.data.name" == "customer_1760274274_744bbae1 Corp"
-jsonpath "$.data.email" == "test_1760274274_744bbae1@example.com"
+jsonpath "$.data.name" == "customer_1760454719_29cd8e27 Corp"
+jsonpath "$.data.email" == "test_1760454719_29cd8e27@example.com"
 
 [Captures]
 customer_id: jsonpath "$.data.id"
@@ -58,7 +58,7 @@ HTTP 200
 [Asserts]
 jsonpath "$.success" == true
 jsonpath "$.data.data" isCollection
-jsonpath "$.data.data[*].name" contains "customer_1760274274_744bbae1 Corp"
+jsonpath "$.data.data[*].name" contains "customer_1760454719_29cd8e27 Corp"
 
 # Test 3: Get customer by ID
 GET http://localhost:8080/api/v1/customers/{{customer_id}}
@@ -68,27 +68,27 @@ HTTP 200
 [Asserts]
 jsonpath "$.success" == true
 jsonpath "$.data.id" == {{customer_id}}
-jsonpath "$.data.name" == "customer_1760274274_744bbae1 Corp"
+jsonpath "$.data.name" == "customer_1760454719_29cd8e27 Corp"
 
 # Test 4: Update customer
 PUT http://localhost:8080/api/v1/customers/{{customer_id}}
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "name": "customer_1760274274_744bbae1 Updated Corp",
-  "email": "updated_test_1760274274_744bbae1@example.com",
-  "phone": "+1-555-1760274274_744bbae1-UPD",
+  "name": "customer_1760454719_29cd8e27 Updated Corp",
+  "email": "updated_test_1760454719_29cd8e27@example.com",
+  "phone": "+1-555-1760454719_29cd8e27-UPD",
   "address": "456 Updated Street, Update City, UC 67890"
 }
 
 HTTP 200
 [Asserts]
 jsonpath "$.success" == true
-jsonpath "$.data.name" == "customer_1760274274_744bbae1 Updated Corp"
-jsonpath "$.data.email" == "updated_test_1760274274_744bbae1@example.com"
+jsonpath "$.data.name" == "customer_1760454719_29cd8e27 Updated Corp"
+jsonpath "$.data.email" == "updated_test_1760454719_29cd8e27@example.com"
 
 # Test 5: Search customers by name
-GET http://localhost:8080/api/v1/customers?search=customer_1760274274_744bbae1
+GET http://localhost:8080/api/v1/customers?search=customer_1760454719_29cd8e27
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -97,7 +97,7 @@ jsonpath "$.success" == true
 jsonpath "$.data.data" isCollection
 
 # Test 6: Filter customers by email
-GET http://localhost:8080/api/v1/customers?email=updated_test_1760274274_744bbae1@example.com
+GET http://localhost:8080/api/v1/customers?email=updated_test_1760454719_29cd8e27@example.com
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -110,7 +110,7 @@ POST http://localhost:8080/api/v1/customers
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "email": "incomplete_test_1760274274_744bbae1@example.com"
+  "email": "incomplete_test_1760454719_29cd8e27@example.com"
 }
 
 HTTP 400

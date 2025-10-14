@@ -42,7 +42,7 @@ Content-Type: application/json
   "password": "TestPass123!",
   "first_name": "Newsletter",
   "last_name": "Tester",
-  "organization_id": 1
+  "tenant_id": 1
 }
 
 # Accept either created or already exists

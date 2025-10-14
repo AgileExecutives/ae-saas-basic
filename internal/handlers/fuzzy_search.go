@@ -83,7 +83,7 @@ func (h *FuzzySearchHandler) Search(c *gin.Context) {
 	if userInterface, exists := c.Get("user"); exists {
 		if user, ok := userInterface.(*models.User); ok {
 			userID = &user.ID
-			organizationID = &user.OrganizationID
+			organizationID = &user.TenantID
 		}
 	}
 
@@ -97,7 +97,7 @@ func (h *FuzzySearchHandler) Search(c *gin.Context) {
 		Offset:              req.Offset,
 		Limit:               req.Limit,
 		UserID:              userID,
-		OrganizationID:      organizationID,
+		TenantID:      organizationID,
 		IncludeCount:        req.IncludeCount,
 		IncludeAggregations: req.IncludeAggregations,
 		HighlightFields:     req.HighlightFields,
@@ -155,7 +155,7 @@ func (h *FuzzySearchHandler) QuickSearch(c *gin.Context) {
 	if userInterface, exists := c.Get("user"); exists {
 		if user, ok := userInterface.(*models.User); ok {
 			userID = &user.ID
-			organizationID = &user.OrganizationID
+			organizationID = &user.TenantID
 		}
 	}
 
@@ -166,7 +166,7 @@ func (h *FuzzySearchHandler) QuickSearch(c *gin.Context) {
 		Offset:         offset,
 		Limit:          limit,
 		UserID:         userID,
-		OrganizationID: organizationID,
+		TenantID: organizationID,
 	}
 
 	// Perform search
@@ -221,7 +221,7 @@ func (h *FuzzySearchHandler) SearchInEntity(c *gin.Context) {
 	if userInterface, exists := c.Get("user"); exists {
 		if user, ok := userInterface.(*models.User); ok {
 			userID = &user.ID
-			organizationID = &user.OrganizationID
+			organizationID = &user.TenantID
 		}
 	}
 
@@ -235,7 +235,7 @@ func (h *FuzzySearchHandler) SearchInEntity(c *gin.Context) {
 		Offset:              req.Offset,
 		Limit:               req.Limit,
 		UserID:              userID,
-		OrganizationID:      organizationID,
+		TenantID:      organizationID,
 		IncludeCount:        req.IncludeCount,
 		IncludeAggregations: req.IncludeAggregations,
 		HighlightFields:     req.HighlightFields,
