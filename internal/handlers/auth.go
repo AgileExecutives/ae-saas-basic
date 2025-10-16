@@ -183,8 +183,8 @@ func (h *AuthHandler) Register(c *gin.Context) {
 		return
 	}
 
-	// Load tenant for response
-	h.db.Preload("Tenant").First(&user, user.ID)
+	// Note: Tenant relation temporarily disabled due to GORM relation issues
+	// h.db.Preload("Tenant").First(&user, user.ID)
 
 	c.JSON(http.StatusCreated, models.SuccessResponse("User created successfully", user.ToResponse()))
 }
@@ -263,8 +263,8 @@ func (h *AuthHandler) Me(c *gin.Context) {
 
 	user := userInterface.(*models.User)
 
-	// Preload tenant
-	h.db.Preload("Tenant").First(user, user.ID)
+	// Note: Tenant relation temporarily disabled due to GORM relation issues
+	// h.db.Preload("Tenant").First(user, user.ID)
 
 	c.JSON(http.StatusOK, models.SuccessResponse("User retrieved successfully", user.ToResponse()))
 }

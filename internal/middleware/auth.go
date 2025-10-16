@@ -48,7 +48,7 @@ func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
 
 		// Get user from database
 		var user models.User
-		if err := db.Preload("Tenant").First(&user, claims.UserID).Error; err != nil {
+		if err := db.First(&user, claims.UserID).Error; err != nil {
 			c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("User not found", "User associated with token not found"))
 			c.Abort()
 			return

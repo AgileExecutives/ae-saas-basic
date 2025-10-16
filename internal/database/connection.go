@@ -109,12 +109,12 @@ func Migrate(db *gorm.DB) error {
 	log.Println("Checking migration status...")
 
 	var tableCount int64
-	err := db.Raw("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name IN ('tenants', 'users', 'plans', 'customers', 'contacts', 'newsletters', 'emails')").Scan(&tableCount).Error
+	err := db.Raw("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name IN ('tenants', 'users', 'plans', 'customers', 'contacts', 'newsletters', 'emails', 'token_blacklist')").Scan(&tableCount).Error
 	if err != nil {
 		return fmt.Errorf("failed to check existing tables: %w", err)
 	}
 
-	if tableCount == 7 {
+	if tableCount == 8 {
 		log.Println("All tables already exist, skipping migrations")
 		return nil
 	}
@@ -123,7 +123,7 @@ func Migrate(db *gorm.DB) error {
 
 	// Drop all tables to avoid conflicts and recreate them
 	log.Println("Dropping existing tables to avoid conflicts...")
-	dropTables := []string{"emails", "contacts", "newsletters", "customers", "users", "plans", "tenants"}
+	dropTables := []string{"emails", "contacts", "newsletters", "customers", "users", "plans", "tenants", "token_blacklist"}
 	for _, table := range dropTables {
 		err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE", table)).Error
 		if err != nil {
@@ -141,6 +141,7 @@ func Migrate(db *gorm.DB) error {
 		&models.Contact{},
 		&models.User{},
 		&models.Customer{},
+		&models.TokenBlacklist{},
 	}
 
 	for i, model := range models {

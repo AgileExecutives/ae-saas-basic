@@ -63,7 +63,8 @@ func (h *CustomerHandler) GetCustomers(c *gin.Context) {
 	}
 
 	// Get paginated results with preloaded relationships
-	if err := query.Preload("Plan").Preload("Tenant").Offset(offset).Limit(limit).Order("created_at DESC").Find(&customers).Error; err != nil {
+	// Note: Tenant and Plan relations temporarily disabled due to GORM relation issues
+	if err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&customers).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to retrieve customers", err.Error()))
 		return
 	}
@@ -114,7 +115,8 @@ func (h *CustomerHandler) GetCustomer(c *gin.Context) {
 	}
 
 	var customer models.Customer
-	if err := h.db.Preload("Plan").Preload("Tenant").Where("id = ? AND tenant_id = ?", id, user.TenantID).First(&customer).Error; err != nil {
+	// Note: Plan and Tenant relations temporarily disabled due to GORM relation issues
+	if err := h.db.Where("id = ? AND tenant_id = ?", id, user.TenantID).First(&customer).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("Customer not found", "Customer with specified ID does not exist"))
 			return
@@ -184,8 +186,8 @@ func (h *CustomerHandler) CreateCustomer(c *gin.Context) {
 		return
 	}
 
-	// Load relationships for response
-	h.db.Preload("Plan").Preload("Tenant").First(&customer, customer.ID)
+	// Note: Plan and Tenant relations temporarily disabled due to GORM relation issues
+	// h.db.Preload("Plan").Preload("Tenant").First(&customer, customer.ID)
 
 	c.JSON(http.StatusCreated, models.SuccessResponse("Customer created successfully", customer.ToResponse()))
 }
@@ -286,8 +288,8 @@ func (h *CustomerHandler) UpdateCustomer(c *gin.Context) {
 		return
 	}
 
-	// Load relationships for response
-	h.db.Preload("Plan").Preload("Tenant").First(&customer, customer.ID)
+	// Note: Plan and Tenant relations temporarily disabled due to GORM relation issues
+	// h.db.Preload("Plan").Preload("Tenant").First(&customer, customer.ID)
 
 	c.JSON(http.StatusOK, models.SuccessResponse("Customer updated successfully", customer.ToResponse()))
 }

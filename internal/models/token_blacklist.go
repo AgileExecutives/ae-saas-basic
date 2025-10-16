@@ -14,7 +14,7 @@ type TokenBlacklist struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
 	TokenID   string         `gorm:"not null;uniqueIndex" json:"token_id" binding:"required"`
 	UserID    uint           `gorm:"not null" json:"user_id" binding:"required"`
-	User      User           `gorm:"foreignKey:UserID" json:"user,omitempty"`
+	// User      User           `gorm:"foreignKey:UserID" json:"user,omitempty"` // Temporarily disabled
 	ExpiresAt time.Time      `gorm:"not null" json:"expires_at"`
 	Reason    string         `json:"reason"`
 }
