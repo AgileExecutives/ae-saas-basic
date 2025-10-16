@@ -8,26 +8,26 @@ import (
 
 // Customer represents a billing customer in the system
 type Customer struct {
-	ID            uint           `gorm:"primarykey" json:"id"`
-	CreatedAt     time.Time      `json:"created_at"`
-	UpdatedAt     time.Time      `json:"updated_at"`
-	DeletedAt     gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
-	Name          string         `gorm:"not null" json:"name" binding:"required"`
-	Email         string         `gorm:"not null" json:"email" binding:"required,email"`
-	Phone         string         `json:"phone"`
-	Street        string         `json:"street"`
-	Zip           string         `json:"zip"`
-	City          string         `json:"city"`
-	Country       string         `json:"country"`
-	TaxID         string         `json:"tax_id"`
-	VAT           string         `json:"vat"`
-	PlanID        uint           `gorm:"not null" json:"plan_id" binding:"required"`
+	ID        uint           `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"`
+	Name      string         `gorm:"not null" json:"name" binding:"required"`
+	Email     string         `gorm:"not null" json:"email" binding:"required,email"`
+	Phone     string         `json:"phone"`
+	Street    string         `json:"street"`
+	Zip       string         `json:"zip"`
+	City      string         `json:"city"`
+	Country   string         `json:"country"`
+	TaxID     string         `json:"tax_id"`
+	VAT       string         `json:"vat"`
+	PlanID    uint           `gorm:"not null" json:"plan_id" binding:"required"`
 	// Plan          Plan           `gorm:"foreignKey:PlanID" json:"plan,omitempty"` // Disabled for migration
-	TenantID      uint           `gorm:"not null" json:"tenant_id"`
+	TenantID uint `gorm:"not null" json:"tenant_id"`
 	// Tenant        Tenant         `gorm:"foreignKey:TenantID" json:"tenant,omitempty"` // Disabled for migration
-	Status        string         `gorm:"default:'active'" json:"status"`
-	PaymentMethod string         `json:"payment_method"`
-	Active        bool           `gorm:"default:true" json:"active"`
+	Status        string `gorm:"default:'active'" json:"status"`
+	PaymentMethod string `json:"payment_method"`
+	Active        bool   `gorm:"default:true" json:"active"`
 }
 
 // TableName specifies the table name for Customer

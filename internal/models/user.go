@@ -20,7 +20,7 @@ type User struct {
 	Role         string         `gorm:"not null;default:'user'" json:"role"`
 	TenantID     uint           `gorm:"not null" json:"tenant_id"`
 	// Tenant       Tenant         `gorm:"foreignKey:TenantID" json:"tenant,omitempty"` // Disabled for migration
-	Active       bool           `gorm:"default:true" json:"active"`
+	Active bool `gorm:"default:true" json:"active"`
 }
 
 // TableName specifies the table name for User

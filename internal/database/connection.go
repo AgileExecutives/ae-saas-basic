@@ -70,9 +70,9 @@ func Connect(config Config) (*gorm.DB, error) {
 		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger:                                   logger.Default.LogMode(logger.Info),
 		DisableForeignKeyConstraintWhenMigrating: true,
-		PrepareStmt: false,
+		PrepareStmt:                              false,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
@@ -86,7 +86,7 @@ func Connect(config Config) (*gorm.DB, error) {
 
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)
-	
+
 	return db, nil
 }
 
@@ -107,7 +107,7 @@ func Migrate(db *gorm.DB) error {
 
 	// Check if we need to run migrations at all
 	log.Println("Checking migration status...")
-	
+
 	var tableCount int64
 	err := db.Raw("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name IN ('tenants', 'users', 'plans', 'customers', 'contacts', 'newsletters', 'emails')").Scan(&tableCount).Error
 	if err != nil {
@@ -120,7 +120,7 @@ func Migrate(db *gorm.DB) error {
 	}
 
 	log.Printf("Found %d existing tables, running fresh migrations...", tableCount)
-	
+
 	// Drop all tables to avoid conflicts and recreate them
 	log.Println("Dropping existing tables to avoid conflicts...")
 	dropTables := []string{"emails", "contacts", "newsletters", "customers", "users", "plans", "tenants"}
