@@ -15,8 +15,8 @@ type TokenBlacklist struct {
 	TokenID   string         `gorm:"not null;uniqueIndex" json:"token_id" binding:"required"`
 	UserID    uint           `gorm:"not null" json:"user_id" binding:"required"`
 	// User      User           `gorm:"foreignKey:UserID" json:"user,omitempty"` // Temporarily disabled
-	ExpiresAt time.Time      `gorm:"not null" json:"expires_at"`
-	Reason    string         `json:"reason"`
+	ExpiresAt time.Time `gorm:"not null" json:"expires_at"`
+	Reason    string    `json:"reason"`
 }
 
 // TableName specifies the table name for TokenBlacklist
