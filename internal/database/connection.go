@@ -66,16 +66,27 @@ func CreateDatabaseIfNotExists(config Config) error {
 
 // Connect creates a database connection
 func Connect(config Config) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=UTC",
 		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
+		DisableForeignKeyConstraintWhenMigrating: true,
+		PrepareStmt: false,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to database: %w", err)
 	}
 
+	// Configure the connection pool
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	
 	return db, nil
 }
 
@@ -94,24 +105,52 @@ func ConnectWithAutoCreate(config Config) (*gorm.DB, error) {
 func Migrate(db *gorm.DB) error {
 	log.Println("Running database migrations...")
 
-	// List of all models to migrate
+	// Check if we need to run migrations at all
+	log.Println("Checking migration status...")
+	
+	var tableCount int64
+	err := db.Raw("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = CURRENT_SCHEMA() AND table_name IN ('tenants', 'users', 'plans', 'customers', 'contacts', 'newsletters', 'emails')").Scan(&tableCount).Error
+	if err != nil {
+		return fmt.Errorf("failed to check existing tables: %w", err)
+	}
+
+	if tableCount == 7 {
+		log.Println("All tables already exist, skipping migrations")
+		return nil
+	}
+
+	log.Printf("Found %d existing tables, running fresh migrations...", tableCount)
+	
+	// Drop all tables to avoid conflicts and recreate them
+	log.Println("Dropping existing tables to avoid conflicts...")
+	dropTables := []string{"emails", "contacts", "newsletters", "customers", "users", "plans", "tenants"}
+	for _, table := range dropTables {
+		err := db.Exec(fmt.Sprintf("DROP TABLE IF EXISTS %s CASCADE", table)).Error
+		if err != nil {
+			log.Printf("Warning: Failed to drop table %s: %v", table, err)
+		}
+	}
+
+	// Now run clean migrations
+	log.Println("Running clean migrations...")
 	models := []interface{}{
 		&models.Tenant{},
 		&models.Plan{},
+		&models.Newsletter{},
+		&models.Email{},
+		&models.Contact{},
 		&models.User{},
 		&models.Customer{},
-		&models.Contact{},
-		&models.Email{},
-		&models.Newsletter{},
-		&models.UserSettings{},
-		&models.TokenBlacklist{},
 	}
 
-	// Use GORM's AutoMigrate which handles dependencies automatically
-	err := db.AutoMigrate(models...)
-	if err != nil {
-		log.Printf("ERROR: Migration failed: %v", err)
-		return fmt.Errorf("failed to migrate database: %w", err)
+	for i, model := range models {
+		log.Printf("Migrating model %d: %T", i+1, model)
+		err := db.AutoMigrate(model)
+		if err != nil {
+			log.Printf("ERROR: Migration failed for model %T: %v", model, err)
+			return fmt.Errorf("failed to migrate model %T: %w", model, err)
+		}
+		log.Printf("Successfully migrated model %T", model)
 	}
 
 	log.Println("Database migrations completed successfully")

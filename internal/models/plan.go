@@ -20,7 +20,7 @@ type Plan struct {
 	InvoicePeriod string         `gorm:"not null;default:'monthly'" json:"invoice_period"`
 	MaxUsers      int            `gorm:"default:10" json:"max_users"`
 	MaxClients    int            `gorm:"default:100" json:"max_clients"`
-	Features      string         `gorm:"type:json" json:"features"`
+	Features      string         `gorm:"type:text" json:"features"`
 	Active        bool           `gorm:"default:true" json:"active"`
 }
 

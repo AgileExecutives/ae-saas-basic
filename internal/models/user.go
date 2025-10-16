@@ -19,7 +19,7 @@ type User struct {
 	LastName     string         `json:"last_name" binding:"required"`
 	Role         string         `gorm:"not null;default:'user'" json:"role"`
 	TenantID     uint           `gorm:"not null" json:"tenant_id"`
-	Tenant       Tenant         `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+	// Tenant       Tenant         `gorm:"foreignKey:TenantID" json:"tenant,omitempty"` // Disabled for migration
 	Active       bool           `gorm:"default:true" json:"active"`
 }
 
@@ -56,9 +56,10 @@ func (u *User) ToResponse() UserResponse {
 		CreatedAt: u.CreatedAt,
 	}
 
-	if u.Tenant.ID != 0 {
-		response.Tenant = u.Tenant.ToResponse()
-	}
+	// Temporarily commented out due to migration issues
+	// if u.Tenant.ID != 0 {
+	// 	response.Tenant = u.Tenant.ToResponse()
+	// }
 
 	return response
 }

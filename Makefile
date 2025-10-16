@@ -29,6 +29,7 @@ clean: ## Clean build artifacts
 setup: ## Set up the development environment
 	cp .env.example .env
 	go mod download
+	go install github.com/swaggo/swag/cmd/swag@latest
 	@echo "Setup complete! Edit .env file with your configuration."
 
 # Database commands
@@ -59,6 +60,17 @@ vet: ## Vet code
 
 lint: ## Run golangci-lint
 	golangci-lint run
+
+# Documentation
+swag-install: ## Install Swagger CLI tool
+	go install github.com/swaggo/swag/cmd/swag@latest
+
+swag: ## Generate Swagger documentation
+	swag init -g main.go -o ./docs
+
+docs: swag ## Alias for swag target
+
+build-with-docs: swag build ## Build application with fresh documentation
 
 # Dependencies
 deps: ## Download dependencies

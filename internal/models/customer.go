@@ -22,9 +22,9 @@ type Customer struct {
 	TaxID         string         `json:"tax_id"`
 	VAT           string         `json:"vat"`
 	PlanID        uint           `gorm:"not null" json:"plan_id" binding:"required"`
-	Plan          Plan           `gorm:"foreignKey:PlanID" json:"plan,omitempty"`
+	// Plan          Plan           `gorm:"foreignKey:PlanID" json:"plan,omitempty"` // Disabled for migration
 	TenantID      uint           `gorm:"not null" json:"tenant_id"`
-	Tenant        Tenant         `gorm:"foreignKey:TenantID" json:"tenant,omitempty"`
+	// Tenant        Tenant         `gorm:"foreignKey:TenantID" json:"tenant,omitempty"` // Disabled for migration
 	Status        string         `gorm:"default:'active'" json:"status"`
 	PaymentMethod string         `json:"payment_method"`
 	Active        bool           `gorm:"default:true" json:"active"`
@@ -78,13 +78,14 @@ func (c *Customer) ToResponse() CustomerResponse {
 		CreatedAt:     c.CreatedAt,
 	}
 
-	if c.Plan.ID != 0 {
-		response.Plan = c.Plan.ToResponse()
-	}
+	// Temporarily disabled for migration
+	// if c.Plan.ID != 0 {
+	// 	response.Plan = c.Plan.ToResponse()
+	// }
 
-	if c.Tenant.ID != 0 {
-		response.Tenant = c.Tenant.ToResponse()
-	}
+	// if c.Tenant.ID != 0 {
+	// 	response.Tenant = c.Tenant.ToResponse()
+	// }
 
 	return response
 }
