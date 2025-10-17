@@ -1,0 +1,38 @@
+{
+  "tenants": [
+    {
+      "name": "Default Tenant",
+      "slug": "default-tenant"
+    }
+  ],
+  "plans": [
+    {
+      "name": "Basic Plan",
+      "slug": "basic",
+      "description": "Basic SaaS plan with essential features",
+      "price": 29.99,
+      "currency": "EUR",
+      "invoice_period": "monthly",
+      "max_users": 10,
+      "max_clients": 100,
+      "features": {
+        "users": 10,
+        "clients": 100,
+        "support": "email"
+      },
+      "active": true
+    }
+  ],
+  "users": [
+    {
+      "username": "testuser",
+      "email": "testuser@example.com",
+      "password": "newpass123",
+      "first_name": "Test",
+      "last_name": "User",
+      "role": "admin",
+      "active": true,
+      "tenant_slug": "default-tenant"
+    }
+  ]
+}

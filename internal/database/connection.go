@@ -1,8 +1,11 @@
 package database
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 
 	"github.com/ae-saas-basic/ae-saas-basic/internal/models"
 	"golang.org/x/crypto/bcrypt"
@@ -19,6 +22,45 @@ type Config struct {
 	Password string
 	DBName   string
 	SSLMode  string
+}
+
+// SeedData represents the structure of seed data from JSON
+type SeedData struct {
+	Tenants []SeedTenant `json:"tenants"`
+	Plans   []SeedPlan   `json:"plans"`
+	Users   []SeedUser   `json:"users"`
+}
+
+// SeedTenant represents tenant seed data
+type SeedTenant struct {
+	Name string `json:"name"`
+	Slug string `json:"slug"`
+}
+
+// SeedPlan represents plan seed data
+type SeedPlan struct {
+	Name          string                 `json:"name"`
+	Slug          string                 `json:"slug"`
+	Description   string                 `json:"description"`
+	Price         float64                `json:"price"`
+	Currency      string                 `json:"currency"`
+	InvoicePeriod string                 `json:"invoice_period"`
+	MaxUsers      int                    `json:"max_users"`
+	MaxClients    int                    `json:"max_clients"`
+	Features      map[string]interface{} `json:"features"`
+	Active        bool                   `json:"active"`
+}
+
+// SeedUser represents user seed data
+type SeedUser struct {
+	Username   string `json:"username"`
+	Email      string `json:"email"`
+	Password   string `json:"password"`
+	FirstName  string `json:"first_name"`
+	LastName   string `json:"last_name"`
+	Role       string `json:"role"`
+	Active     bool   `json:"active"`
+	TenantSlug string `json:"tenant_slug"`
 }
 
 // CreateDatabaseIfNotExists creates the database if it doesn't exist
@@ -158,77 +200,128 @@ func Migrate(db *gorm.DB) error {
 	return nil
 }
 
+// loadSeedData loads seed data from JSON file
+func loadSeedData() (*SeedData, error) {
+	// Get the current working directory
+	pwd, err := os.Getwd()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get current directory: %w", err)
+	}
+	
+	// Look for seed-data.json in current directory or parent directories
+	seedDataPath := filepath.Join(pwd, "seed-data.json")
+	if _, err := os.Stat(seedDataPath); os.IsNotExist(err) {
+		// Try parent directory (in case running from subdirectory)
+		seedDataPath = filepath.Join(filepath.Dir(pwd), "seed-data.json")
+		if _, err := os.Stat(seedDataPath); os.IsNotExist(err) {
+			return nil, fmt.Errorf("seed-data.json not found in current or parent directory")
+		}
+	}
+
+	// Read the JSON file
+	data, err := os.ReadFile(seedDataPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read seed-data.json: %w", err)
+	}
+
+	// Parse JSON data
+	var seedData SeedData
+	if err := json.Unmarshal(data, &seedData); err != nil {
+		return nil, fmt.Errorf("failed to parse seed-data.json: %w", err)
+	}
+
+	return &seedData, nil
+}
+
 // Seed adds initial data to the database
 func Seed(db *gorm.DB) error {
 	log.Println("Seeding database with initial data...")
 
-	// Create default tenant if it doesn't exist
+	// Load seed data from JSON file
+	seedData, err := loadSeedData()
+	if err != nil {
+		return fmt.Errorf("failed to load seed data: %w", err)
+	}
+
+	// Create tenants
 	var tenantCount int64
 	db.Model(&models.Tenant{}).Count(&tenantCount)
 	if tenantCount == 0 {
-		defaultTenant := models.Tenant{
-			Name: "Default Tenant",
-			Slug: "default-tenant",
+		for _, tenantData := range seedData.Tenants {
+			tenant := models.Tenant{
+				Name: tenantData.Name,
+				Slug: tenantData.Slug,
+			}
+			if err := db.Create(&tenant).Error; err != nil {
+				return fmt.Errorf("failed to create tenant %s: %w", tenantData.Name, err)
+			}
+			log.Printf("Created tenant: %s", tenantData.Name)
 		}
-		if err := db.Create(&defaultTenant).Error; err != nil {
-			return fmt.Errorf("failed to create default tenant: %w", err)
-		}
-		log.Println("Created default tenant")
 	}
 
-	// Create default plan if it doesn't exist
+	// Create plans
 	var planCount int64
 	db.Model(&models.Plan{}).Count(&planCount)
 	if planCount == 0 {
-		defaultPlan := models.Plan{
-			Name:          "Basic Plan",
-			Slug:          "basic",
-			Description:   "Basic SaaS plan with essential features",
-			Price:         29.99,
-			Currency:      "EUR",
-			InvoicePeriod: "monthly",
-			MaxUsers:      10,
-			MaxClients:    100,
-			Features:      `{"users": 10, "clients": 100, "support": "email"}`,
-			Active:        true,
+		for _, planData := range seedData.Plans {
+			// Convert features map to JSON string
+			featuresJSON, err := json.Marshal(planData.Features)
+			if err != nil {
+				return fmt.Errorf("failed to marshal features for plan %s: %w", planData.Name, err)
+			}
+
+			plan := models.Plan{
+				Name:          planData.Name,
+				Slug:          planData.Slug,
+				Description:   planData.Description,
+				Price:         planData.Price,
+				Currency:      planData.Currency,
+				InvoicePeriod: planData.InvoicePeriod,
+				MaxUsers:      planData.MaxUsers,
+				MaxClients:    planData.MaxClients,
+				Features:      string(featuresJSON),
+				Active:        planData.Active,
+			}
+			if err := db.Create(&plan).Error; err != nil {
+				return fmt.Errorf("failed to create plan %s: %w", planData.Name, err)
+			}
+			log.Printf("Created plan: %s", planData.Name)
 		}
-		if err := db.Create(&defaultPlan).Error; err != nil {
-			return fmt.Errorf("failed to create default plan: %w", err)
-		}
-		log.Println("Created default plan")
 	}
 
-	// Create test user if it doesn't exist
+	// Create users
 	var userCount int64
 	db.Model(&models.User{}).Count(&userCount)
 	if userCount == 0 {
-		// Get the first tenant
-		var defaultTenant models.Tenant
-		if err := db.First(&defaultTenant).Error; err != nil {
-			return fmt.Errorf("failed to find default tenant: %w", err)
-		}
+		for _, userData := range seedData.Users {
+			// Find the tenant by slug
+			var tenant models.Tenant
+			if err := db.Where("slug = ?", userData.TenantSlug).First(&tenant).Error; err != nil {
+				return fmt.Errorf("failed to find tenant with slug %s: %w", userData.TenantSlug, err)
+			}
 
-		// Hash the password
-		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("newpass123"), bcrypt.DefaultCost)
-		if err != nil {
-			return fmt.Errorf("failed to hash password: %w", err)
-		}
+			// Hash the password
+			hashedPassword, err := bcrypt.GenerateFromPassword([]byte(userData.Password), bcrypt.DefaultCost)
+			if err != nil {
+				return fmt.Errorf("failed to hash password for user %s: %w", userData.Username, err)
+			}
 
-		testUser := models.User{
-			Username:     "testuser",
-			Email:        "testuser@example.com",
-			PasswordHash: string(hashedPassword),
-			FirstName:    "Test",
-			LastName:     "User",
-			TenantID:     defaultTenant.ID,
-			Role:         "admin",
-			Active:       true,
-		}
+			user := models.User{
+				Username:     userData.Username,
+				Email:        userData.Email,
+				PasswordHash: string(hashedPassword),
+				FirstName:    userData.FirstName,
+				LastName:     userData.LastName,
+				TenantID:     tenant.ID,
+				Role:         userData.Role,
+				Active:       userData.Active,
+			}
 
-		if err := db.Create(&testUser).Error; err != nil {
-			return fmt.Errorf("failed to create test user: %w", err)
+			if err := db.Create(&user).Error; err != nil {
+				return fmt.Errorf("failed to create user %s: %w", userData.Username, err)
+			}
+			log.Printf("Created user: %s", userData.Username)
 		}
-		log.Println("Created test user")
 	}
 
 	log.Println("Database seeding completed successfully! 🎉")
